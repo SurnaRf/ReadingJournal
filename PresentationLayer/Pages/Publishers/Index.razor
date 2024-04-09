@@ -1,0 +1,73 @@
+﻿@page "/publishers"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject PublisherManager publisherManager
+@inject NavigationManager navigationManager;
+
+<h3>Index</h3>
+
+<p>
+    <a href="publishers/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr><td>Loading...</td></tr>
+        }
+
+        else
+        {
+            @foreach (Publisher publisher in Model)
+            {
+                <tr>
+                    <td>
+                        @publisher.Name
+                    </td>
+                    <td>
+                        <a href="publishers/edit/@publisher.Id">Edit</a> |
+                        <a href="publishers/details/@publisher.Id">Details</a> |
+                        <a href="publishers/delete/@publisher.Id">Delete</a> |
+                        <a href="publishers" @onclick="(() => OnFastDelete(publisher.Id))">Fast Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+@code
+{
+    IEnumerable<Publisher> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await publisherManager.ReadAllAsync();
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnFastDelete(int id)
+    {
+        try
+        {
+            await publisherManager.DeleteAsync(id);
+
+            Model = await publisherManager.ReadAllAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

@@ -1,0 +1,32 @@
+﻿@page "/search"
+@using BusinessLayer;
+@using Services;
+@inject BookService bookService;
+<h3>SearchBooks</h3>
+
+<input type="text" @bind="searchText" />
+<button @onclick="Search">Search</button>
+<br />
+
+@if (Books != null)
+{
+    <div class="book-list">
+        @foreach (var book in Books)
+        {
+            <div class="book-item">
+                <img src="@book.CoverUrl" alt="Book Cover" width="150" height="200" />
+                <p>@book.Title</p>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private string searchText;
+	public ICollection<Book> Books { get; set; }
+
+	private async Task Search()
+	{
+		Books = await bookService.GetBooks(searchText);
+	}
+}

@@ -1,0 +1,58 @@
+﻿@page "/"
+@using PresentationLayer.Services;
+@inject SeederService seederService;
+@inject IJSRuntime js;
+
+<PageTitle>Index</PageTitle>
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello, @context.User.Identity.Name!</h1>
+    </Authorized>
+    <NotAuthorized>
+        <h1>Hello, Guest!</h1>
+    </NotAuthorized>
+</AuthorizeView>
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<AuthorizeView>
+    <Authorized>
+        <br />
+        @*<button class="btn btn-primary" onclick="DisplayGreetingAlert">Display Greeting Alert</button>*@
+    </Authorized>
+</AuthorizeView>
+
+<label id="error" class="text-danger">@error</label>
+
+@code
+{
+    private string error;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    //private async Task DisplayGreetingAlert()
+    //{
+    //    var authState = await authenticationState;
+    //    var message = $"Hello {authState.User.Identity.Name}";
+    //    await js.InvokeVoidAsync("alert", message);
+    //}
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await seederService.SeedData();
+            await base.OnInitializedAsync();
+            error = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            error = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+        }
+
+    }
+
+
+}

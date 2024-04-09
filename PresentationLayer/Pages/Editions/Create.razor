@@ -1,0 +1,98 @@
+﻿@page "/editions/create"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject EditionManager editionManager;
+@inject PublisherManager publisherManager;
+@inject NavigationManager navigationManager;
+
+<h3>Create</h3>
+
+
+<h4>Edition</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="Model" OnValidSubmit="OnCreated">
+            <DataAnnotationsValidator />            
+            <div class="form-group">
+                <label class="control-label">Cover Type</label>
+                <InputSelect @bind-Value="Model.CoverType" class="form-control">
+                    @if (Model.CoverType == null)
+                    {
+                        <option selected value="">None</option>
+                    }
+                    @foreach (var ct in Enum.GetValues(typeof(CoverType)))
+                    {
+                        <option value="@ct">@ct</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@( () => Model.CoverType)" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Number of Pages</label>
+                <input @bind-value="Model.NumberOfPages" class="form-control" />
+                <ValidationMessage For="@( () => Model.NumberOfPages )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Publication Date</label>
+                <input type="date" @bind-value="Model.PublicationDate" class="form-control" />
+                <ValidationMessage For="@( () => Model.PublicationDate )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Publisher</label>
+                <InputSelect @bind-Value="Model.PublisherId" class="form-control">
+                    @if (Model.PublisherId == 0)
+                    {
+                        <option selected value="">None</option>
+                    }
+                    @foreach (var item in Publishers)
+                    {
+                        <option value="@item.Id"> @item.Name </option>
+                    }
+                </InputSelect>
+                <span id="publisherErrorLbl" class="text-danger">@publisherError</span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="books">Back to List</a>
+</div>
+
+@code
+{
+    Edition Model = new();
+    ICollection<Publisher> Publishers = new List<Publisher>();
+    string publisherError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Publishers = await publisherManager.ReadAllAsync();
+
+        Model.Publisher = new Publisher();
+    }
+
+    private async Task OnCreated()
+    {
+        if (Model.PublisherId == 0)
+        {
+            publisherError = "You must choose a publisher";
+            return;
+        }
+        else
+        {
+            publisherError = string.Empty;
+        }
+
+        Model.Publisher = new() { Id = Model.PublisherId };
+
+        await editionManager.CreateAsync(Model);
+        navigationManager.NavigateTo("editions", true);
+    }
+
+}

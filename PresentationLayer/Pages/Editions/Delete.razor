@@ -1,0 +1,60 @@
+﻿@page "/editions/delete/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject EditionManager editionManager;
+@inject NavigationManager navigationManager;
+@inject ErrorModel errorModel;
+
+<h3>Delete</h3>
+
+<h4>Edition</h4>
+<hr />
+
+<div class="row">
+	<div class="col-md-4">
+		<EditForm Model="@Model" OnValidSubmit="OnDeleted">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+			<div class="form-group">
+				<label class="control-label"></label>
+				<span class="form-control">@Model.Id</span>
+				<ValidationMessage For=@( () => Model.Id) />
+			</div>
+			<br />
+			<div class="form-group">
+				<input type="submit" value="Delete" class="btn btn-primary" />
+			</div>
+
+			<label id="error" class="text-danger">@errorModel.Description</label>
+		</EditForm>
+	</div>
+</div>
+
+<div>
+	<a href="editions">Back to List</a>
+</div>
+@code {
+	Edition Model = new();
+
+	[Parameter]
+	public int Id { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Model = await editionManager.ReadAsync(Id, true, false);
+	}
+
+	async Task OnDeleted()
+	{
+		try
+		{
+			await editionManager.DeleteAsync(Model.Id);
+			navigationManager.NavigateTo("editions");
+		}
+		catch (Exception ex)
+		{
+			errorModel.Code = "DB";
+			errorModel.Description = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+		}
+	}
+}

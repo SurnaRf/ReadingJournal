@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+
+
+<PageTitle>PresentationLayer</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <p>Hello, @context.User.Identity?.Name!</p>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink href="user/logout">
+                        <span aria-hidden="true"></span> Logout
+                    </NavLink>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink href="user/create">
+                        <span aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink href="user/login">
+                        <span aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+

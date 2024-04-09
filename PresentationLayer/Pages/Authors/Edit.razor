@@ -1,0 +1,64 @@
+﻿@page "/authors/edit/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject AuthorManager authorManager;
+@inject NavigationManager navigationManager;
+
+<h3>Edit</h3>
+
+
+<h4>Author</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="Model" OnValidSubmit="OnUpdated">
+            <DataAnnotationsValidator />
+            <input type="hidden" @bind-value="Model.Id" />
+            <div class="form-group">
+                <label class="control-label">First name</label>
+                <input @bind-value="Model.FirstName" class="form-control" />
+                <ValidationMessage For="@( () => Model.FirstName )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Last name</label>
+                <input @bind-value="Model.LastName" class="form-control" />
+                <ValidationMessage For="@( () => Model.LastName )" />
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="authors">Back to List</a>
+</div>
+
+@code
+{
+    Author Model = new Author();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await authorManager.ReadAsync(Id, false, false);
+    }
+
+    async Task OnUpdated()
+    {
+        try
+        {
+            await authorManager.UpdateAsync(Model);
+            navigationManager.NavigateTo("authors");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+}

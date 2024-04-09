@@ -1,0 +1,82 @@
+﻿@page "/books/edit/{ISBN}"
+@using BusinessLayer;
+@using ServiceLayer;
+@using Services;
+@inject BookManager bookManager;
+@inject EditionManager editionManager;
+@inject NavigationManager navigationManager;
+
+<h3>Edit</h3>
+
+
+<h4>Book</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="Model" OnValidSubmit="OnUpdated">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label class="control-label">ISBN</label>
+                <label class="form-control">@Model.ISBN</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Title</label>
+                <input @bind-value="Model.Title" class="form-control" />
+                <ValidationMessage For="@( () => Model.Title )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Description</label>
+                <input @bind-value="Model.Description" class="form-control" />
+                <ValidationMessage For="@( () => Model.Description )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Edition</label>
+                <InputSelect @bind-Value="Model.EditionId" class="form-control">
+
+                    @foreach (var item in Editions)
+                    {
+                        if (item.Id == Model.EditionId)
+                        {
+                            <option selected value="@item.Id"> @item.Id </option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id"> @item.Id </option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+           
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="books">Back to List</a>
+</div>
+
+@code
+{
+    Book Model = new();
+    ICollection<Edition> Editions= new List<Edition>();
+
+    [Parameter]
+    public string ISBN { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Editions = await editionManager.ReadAllAsync();
+
+        Model = await bookManager.ReadAsync(ISBN, true, false);
+    }
+
+    private async Task OnUpdated()
+    {
+        await bookManager.UpdateAsync(Model, true);
+        navigationManager.NavigateTo("books");
+    }
+
+}

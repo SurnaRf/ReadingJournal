@@ -1,0 +1,73 @@
+﻿@page "/editions/details/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject EditionManager editionManager
+
+<h3>Details</h3>
+
+<div>
+    <h4>Edition</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Cover Type
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CoverType
+        </dd>
+        <dt class="col-sm-2">
+            Number of Pages
+        </dt>
+        <dd class="col-sm-10">
+            @Model.NumberOfPages
+        </dd>
+        <dt class="col-sm-2">
+            Publication Date
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.PublicationDate != null)
+            {
+                <td>
+                    @(((DateTime)(Model.PublicationDate)).ToShortDateString())
+                </td>
+            }
+            else
+            {
+                <td>
+                    Not set.
+                </td>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            Publisher
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Publisher != null)
+            {
+                @Model.Publisher.Name
+            }
+            else
+            {
+                <span>Publisher not available</span>
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    <a href="editions/edit/@Model.Id">Edit</a> |
+    <a href="editions">Back to List</a>
+</div>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    Edition Model = new();    
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await editionManager.ReadAsync(Id, true);
+    }
+
+}

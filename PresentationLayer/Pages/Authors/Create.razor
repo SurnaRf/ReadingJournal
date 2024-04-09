@@ -1,0 +1,55 @@
+﻿@page "/authors/create"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject AuthorManager authorManager;
+@inject NavigationManager navigationManager;
+
+<h3>Create</h3>
+
+<h4>Author</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="@Model" OnValidSubmit="OnCreated">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label class="control-label">First name</label>
+                <input @bind-value="Model.FirstName" class="form-control" />
+                <ValidationMessage For=@( () => Model.FirstName) />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Last name</label>
+                <input @bind-value="Model.LastName" class="form-control" />
+                <ValidationMessage For=@( () => Model.LastName) />
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="authors">Back to List</a>
+</div>
+
+@code
+{
+    Author Model = new Author();
+
+
+    async Task OnCreated()
+    {
+        try
+        {
+            await authorManager.CreateAsync(Model);
+            navigationManager.NavigateTo("authors");
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+}

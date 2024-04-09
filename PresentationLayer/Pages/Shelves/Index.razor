@@ -1,0 +1,85 @@
+﻿@page "/shelves"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject ShelfManager shelfManager
+@inject NavigationManager navigationManager;
+
+<h3>Index</h3>
+
+<p>
+    <a href="shelves/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Shelf purpose
+            </th>
+            <th>
+                User
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr><td>Loading...</td></tr>
+        }
+
+        else
+        {
+            @foreach (Shelf shelf in Model)
+            {
+                <tr>
+                    <td>
+                        @shelf.Name
+                    </td>
+                    <td>
+                        @shelf.ShelfPurpose
+                    </td>
+                    <td>
+                        @shelf.User.UserName
+                    </td>
+                    <td>
+                        <a href="shelves/edit/@shelf.Id">Edit</a> |
+                        <a href="shelves/details/@shelf.Id">Details</a> |
+                        <a href="shelves/delete/@shelf.Id">Delete</a> |
+                        <a href="shelves" @onclick="(() => OnFastDelete(shelf.Id))">Fast Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+@code
+{
+    IEnumerable<Shelf> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await shelfManager.ReadAllAsync(true);
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnFastDelete(int id)
+    {
+        try
+        {
+            await shelfManager.DeleteAsync(id);
+
+            Model = await shelfManager.ReadAllAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

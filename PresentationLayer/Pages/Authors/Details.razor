@@ -1,0 +1,51 @@
+﻿@page "/authors/details/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject AuthorManager authorManager;
+
+<h3>Details</h3>
+
+<div>
+    <h4>Author</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            First name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.FirstName
+        </dd>
+        <dt class="col-sm-2">
+            Last name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.LastName
+        </dd>
+
+        <dt class="col-sm-2">
+            Books
+        </dt>
+        <dd class="col-sm-10">
+            @string.Join(", ", Model.Books.Select(b => b.Title))
+        </dd>
+    </dl>
+</div>
+<div>
+    <a href="authors/edit/@Model.Id">Edit</a> |
+    <a href="authors">Back to List</a>
+</div>
+
+
+@code
+{
+    Author Model = new Author();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await authorManager.ReadAsync(Id, true);
+    }
+
+}

@@ -1,0 +1,73 @@
+﻿@page "/genres"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject GenreManager genreManager
+@inject NavigationManager navigationManager;
+
+<h3>Index</h3>
+
+<p>
+    <a href="genres/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr><td>Loading...</td></tr>
+        }
+
+        else
+        {
+            @foreach (Genre genre in Model)
+            {
+                <tr>
+                    <td>
+                        @genre.Name
+                    </td>
+                    <td>
+                        <a href="genres/edit/@genre.Id">Edit</a> |
+                        <a href="genres/details/@genre.Id">Details</a> |
+                        <a href="genres/delete/@genre.Id">Delete</a> |
+                        <a href="genres" @onclick="(() => OnFastDelete(genre.Id))">Fast Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+@code
+{
+    IEnumerable<Genre> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await genreManager.ReadAllAsync();
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnFastDelete(int id)
+    {
+        try
+        {
+            await genreManager.DeleteAsync(id);
+
+            Model = await genreManager.ReadAllAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

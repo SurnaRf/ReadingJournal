@@ -1,0 +1,42 @@
+﻿@page "/publishers/details/{Id:int}"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject PublisherManager publisherManager;
+
+<h3>Details</h3>
+
+<div>
+	<h4>Publisher</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			Name
+		</dt>
+		<dd class="col-sm-10">
+			@Model.Name
+		</dd>
+		<dt class="col-sm-2">
+			Books
+		</dt>
+		<dd class="col-sm-10">
+			<span>@string.Join(", ", Model.Books.Select(b => b.Title))</span>
+		</dd>
+	</dl>
+</div>
+
+<div>
+	<a href="publishers/edit/@Model.Id">Edit</a> |
+	<a href="publishers">Back to List</a>
+</div>
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	Publisher Model = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		Model = await publisherManager.ReadAsync(Id, true, true);
+	}
+}

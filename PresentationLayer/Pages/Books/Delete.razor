@@ -1,0 +1,60 @@
+﻿@page "/books/delete/{ISBN}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject BookManager bookManager;
+@inject NavigationManager navigationManager;
+@inject ErrorModel errorModel;
+
+<h3>Delete</h3>
+
+<h4>Book</h4>
+<hr />
+
+<div class="row">
+	<div class="col-md-4">
+		<EditForm Model="@Model" OnValidSubmit="OnDeleted">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+			<div class="form-group">
+				<label class="control-label"></label>
+				<span class="form-control">@Model.Title</span>
+				<ValidationMessage For=@( () => Model.Title) />
+			</div>
+			<br />
+			<div class="form-group">
+				<input type="submit" value="Delete" class="btn btn-primary" />
+			</div>
+
+			<label id="error" class="text-danger">@errorModel.Description</label>
+		</EditForm>
+	</div>
+</div>
+
+<div>
+	<a href="books">Back to List</a>
+</div>
+@code {
+	Book Model = new();
+
+	[Parameter]
+	public string ISBN { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		Model = await bookManager.ReadAsync(ISBN, true, false);
+	}
+
+	async Task OnDeleted()
+	{
+		try
+		{
+			await bookManager.DeleteAsync(Model.ISBN);
+			navigationManager.NavigateTo("books");
+		}
+		catch (Exception ex)
+		{
+			errorModel.Code = "DB";
+			errorModel.Description = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+		}
+	}
+}

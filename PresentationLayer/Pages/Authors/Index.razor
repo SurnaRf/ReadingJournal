@@ -1,0 +1,80 @@
+﻿@page "/authors"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject AuthorManager authorManager
+@inject NavigationManager navigationManager;
+
+<h3>Index</h3>
+
+<p>
+    <a href="authors/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                First name
+            </th>
+            <th>
+                Last name
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr><td>Loading...</td></tr>
+        }
+
+        else
+        {
+            @foreach (Author author in Model)
+            {
+                <tr>
+                    <td>
+                        @author.FirstName
+                    </td>
+                    <td>
+                        @author.LastName
+                    </td>
+                    <td>
+                        <a href="authors/edit/@author.Id">Edit</a> |
+                        <a href="authors/details/@author.Id">Details</a> |
+                        <a href="authors/delete/@author.Id">Delete</a> |
+                        <a href="authors" @onclick="(() => OnFastDelete(author.Id))">Fast Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+@code
+{
+    IEnumerable<Author> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await authorManager.ReadAllAsync();
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnFastDelete(int id)
+    {
+        try
+        {
+            await authorManager.DeleteAsync(id);
+
+            Model = await authorManager.ReadAllAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}
+

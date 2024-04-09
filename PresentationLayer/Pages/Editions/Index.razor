@@ -1,0 +1,101 @@
+﻿@page "/editions"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject EditionManager editionManager
+@inject NavigationManager navigationManager;
+
+<h3>Index</h3>
+
+<p>
+    <a href="editions/create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Publication date
+            </th>
+            <th>
+                Number of pages
+            </th>
+            <th>
+                Cover type
+            </th>
+            <th>
+                Publisher
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null)
+        {
+            <tr><td>Loading...</td></tr>
+        }
+
+        else
+        {
+            @foreach (Edition edition in Model)
+            {
+                <tr>
+                    @if (edition.PublicationDate != null)
+                    {
+                        <td>
+                            @(((DateTime)(edition.PublicationDate)).ToShortDateString())
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            Not set :)
+                        </td>
+                    }
+                    <td>
+                        @edition.NumberOfPages
+                    </td>
+                    <td>
+                        @edition.CoverType
+                    </td>
+                    <td>
+                        @edition.Publisher.Name
+                    </td>
+                    <td>
+                        <a href="editions/edit/@edition.Id">Edit</a> |
+                        <a href="editions/details/@edition.Id">Details</a> |
+                        <a href="editions/delete/@edition.Id">Delete</a> |
+                        <a href="editions" @onclick="(() => OnFastDelete(edition.Id))">Fast Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
+@code
+{
+    IEnumerable<Edition> Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await editionManager.ReadAllAsync(true);
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnFastDelete(int id)
+    {
+        try
+        {
+            await editionManager.DeleteAsync(id);
+
+            Model = await editionManager.ReadAllAsync(true);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}
+

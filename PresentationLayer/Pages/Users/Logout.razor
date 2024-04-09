@@ -1,0 +1,49 @@
+﻿@page "/user/logout"
+@using System.Security.Principal;
+@using System.Security.Claims;
+@using Services;
+@using BusinessLayer;
+@using Microsoft.Extensions.Logging;
+@inject UserService userService;
+@inject ErrorModel errorModel;
+@inject ILogger<User> logger;
+@inject NavigationManager navigationManager;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+@if (userClaims is null)
+{
+    <h3>You have successfully logged out of the application.</h3>
+}
+
+<div class="row">
+    <label id="error" class="col-md-4 text-danger">@errorModel.Description</label>
+</div>
+
+@code
+{
+    private ClaimsPrincipal userClaims;
+    private AuthenticationState authenticationState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            authenticationState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            userClaims = authenticationState.User;
+            if (userClaims is not null && userClaims.Identity.IsAuthenticated)
+            {
+                var customAuthenticationStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
+                await customAuthenticationStateProvider.UpdateAuthenticationState(null);
+
+                navigationManager.NavigateTo("/", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+}

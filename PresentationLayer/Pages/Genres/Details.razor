@@ -1,0 +1,42 @@
+﻿@page "/genres/details/{Id:int}"
+@using ServiceLayer;
+@using BusinessLayer;
+@inject GenreManager genreManager;
+
+<h3>Details</h3>
+
+<div>
+	<h4>Genre</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			Name
+		</dt>
+		<dd class="col-sm-10">
+			@Model.Name
+		</dd>
+		<dt class="col-sm-2">
+			Books
+		</dt>
+		<dd class="col-sm-10">
+			<span>@string.Join(", ", Model.Books.Select(b => b.Title))</span>
+		</dd>
+	</dl>
+</div>
+
+<div>
+	<a href="genres/edit/@Model.Id">Edit</a> |
+	<a href="genres">Back to List</a>
+</div>
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	Genre Model = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		Model = await genreManager.ReadAsync(Id, true, true);
+	}
+}
