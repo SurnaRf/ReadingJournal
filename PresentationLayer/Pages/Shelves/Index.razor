@@ -3,6 +3,9 @@
 @using BusinessLayer;
 @inject ShelfManager shelfManager
 @inject NavigationManager navigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+
 
 <h3>Index</h3>
 
@@ -64,7 +67,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var name = user.Identity.Name;
+
         Model = await shelfManager.ReadAllAsync(true);
+        Model = Model.Where(shelf => shelf.UserId == userId);
         await base.OnInitializedAsync();
     }
 

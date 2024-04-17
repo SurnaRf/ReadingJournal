@@ -308,8 +308,15 @@ namespace DataLayer
                 throw;
             }
         }
+		public async Task ChangePassword(string userid, string password)
+		{
+			User user = await ReadUserAsync(userid);
+			await userManager.RemovePasswordAsync(user);
 
-        public async Task<User> FindUserByNameAsync(string name, bool useNavigationalProperties = false)
+			await userManager.AddPasswordAsync(user, password);
+			await dbContext.SaveChangesAsync();
+		}
+		public async Task<User> FindUserByNameAsync(string name, bool useNavigationalProperties = false)
         {
             try
             {

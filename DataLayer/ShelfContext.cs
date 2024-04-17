@@ -161,5 +161,24 @@ namespace DataLayer
 				throw;
 			}
 		}
-	}
+
+        public async Task<ICollection<Shelf>> GetShelvesForUserAsync(string userId, bool useNavigationalProperties = false)
+        {
+            try
+            {
+                IQueryable<Shelf> query = dbContext.Shelves.Where(sh => sh.UserId == userId);
+
+                if (useNavigationalProperties)
+                {
+                    query = query.Include(sh => sh.Books).Include(sh => sh.User);
+                }
+
+                return await query.ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
 }

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using PresentationLayer.Pages;
 using PresentationLayer.Services;
 using ServiceLayer;
+using MudBlazor.Services;
+
 
 namespace PresentationLayer;
 
@@ -45,7 +47,8 @@ public class Program
         builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
         builder.Services.AddScoped<ProtectedSessionStorage, ProtectedSessionStorage>();
 
-        builder.Services.AddScoped<UserService, UserService>();
+        builder.Services.AddMudServices();
+
         //builder.Services.AddScoped<IBookService, BookService>();
 
         builder.Services.AddDbContext<ReadingJournalDbContext>(options =>
@@ -114,6 +117,9 @@ public class Program
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.UseHttpsRedirection();
 

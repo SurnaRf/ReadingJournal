@@ -70,12 +70,15 @@ namespace ServiceLayer
         {
             await context.DeleteUserByNameAsync(name);
         }
+		public async Task ChangePassword(string userid, string password)
+		{
+			await context.ChangePassword(userid, password);
+		}
+		#endregion
 
-        #endregion
+		#region Find Methods
 
-        #region Find Methods
-
-        public async Task<User> FindUserByNameAsync(string name, bool useNavigationalProperties = false)
+		public async Task<User> FindUserByNameAsync(string name, bool useNavigationalProperties = false)
         {
             return await context.FindUserByNameAsync(name, useNavigationalProperties);
         }

@@ -1,9 +1,13 @@
 ﻿@page "/shelves/create"
 @using BusinessLayer;
 @using ServiceLayer;
+@using Services;
+@using System.Security.Claims
 @inject ShelfManager shelfManager;
 @inject UserManager userManager;
 @inject NavigationManager navigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <h3>Create</h3>
 
@@ -33,7 +37,7 @@
                 </InputSelect>
                 <ValidationMessage For="@( () => Model.ShelfPurpose )" />
             </div>
-            <div class="form-group">
+            @*<div class="form-group" hidden>
                 <label class="control-label">User</label>
                 <InputSelect @bind-Value="Model.UserId" class="form-control">
                     @if (Model.UserId == null)
@@ -46,7 +50,7 @@
                     }
                 </InputSelect>
                 <span id="userErrorLbl" class="text-danger">@userError</span>
-            </div>
+            </div>*@
             <br />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -66,24 +70,24 @@
     string userError;
     string shelfPurposeError;
 
+
     protected override async Task OnInitializedAsync()
     {
-        Users = await userManager.ReadAllUsersAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        Model.User = new();
+        var name = user.Identity.Name;
+
+
+        Model.User = await userManager.FindUserByNameAsync(name);
+        Model.UserId = Model.User.Id;
+
+        await base.OnInitializedAsync();
+
     }
 
     private async Task OnCreated()
     {
-        if (Model.UserId == null)
-        {
-            userError = "You must choose a user";
-            return;
-        }
-        else
-        {
-            userError = string.Empty;
-        }
 
         if (Model.ShelfPurpose == null)
         {

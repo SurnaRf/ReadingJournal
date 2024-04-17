@@ -41,5 +41,10 @@ namespace ServiceLayer
         {
             await shelfContext.DeleteAsync(key);
         }
+
+        public async Task<ICollection<Shelf>> GetShelvesForUserAsync(string userId, bool useNavigationalProperties = false)
+        {
+            return await shelfContext.GetShelvesForUserAsync(userId, useNavigationalProperties);
+        }
     }
 }

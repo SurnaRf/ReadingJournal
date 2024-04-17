@@ -104,6 +104,18 @@ namespace DataLayer
                     query = query.AsNoTrackingWithIdentityResolution();
                 }
 
+                //var books = await query.ToListAsync(); // Retrieve all books asynchronously
+
+                //// Example of handling null values (e.g., CoverUrl) before processing data
+                //foreach (var book in books)
+                //{
+                //    if (book.CoverUrl == null)
+                //    {
+                //        book.CoverUrl = "default_cover.jpg"; // Set default cover URL or handle null case
+                //    }
+                //}
+
+                //return books;
                 return await query.ToListAsync();
             }
 			catch (Exception)

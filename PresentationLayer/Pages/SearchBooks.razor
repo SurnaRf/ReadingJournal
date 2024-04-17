@@ -1,7 +1,15 @@
 ﻿@page "/search"
 @using BusinessLayer;
 @using Services;
+@using ServiceLayer;
+@using System.Security.Claims
+
 @inject BookService bookService;
+@inject ShelfManager shelfManager
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
 <h3>SearchBooks</h3>
 
 <input type="text" @bind="searchText" />
@@ -16,17 +24,111 @@
             <div class="book-item">
                 <img src="@book.CoverUrl" alt="Book Cover" width="150" height="200" />
                 <p>@book.Title</p>
+                <button @onclick="() => AddToShelf(book)">Add to Shelf</button>
             </div>
+            <div class="form-group">
+                <label for="shelfSelect">Select a shelf:</label>                
+            </div>
+
         }
+    </div>
+    <div class="form-group">
+        <label for="shelfSelect">Select a shelf:</label>
+        <EditForm Model="SearchModel">
+            <InputSelect id="shelfSelect" @bind-Value="SearchModel.SelectedShelfId">
+                @foreach (var shelf in Shelves)
+                {
+                    <option value="@shelf.Id">@shelf.Name</option>
+                }
+            </InputSelect>
+        </EditForm>
     </div>
 }
 
 @code {
     private string searchText;
-	public ICollection<Book> Books { get; set; }
+    public ICollection<Book> Books { get; set; }
+    public int SelectedShelfId { get; set; }
+    public IEnumerable<Shelf> Shelves { get; set; } =  new List<Shelf>();
+    public SearchModel SearchModel { get; set; } = new SearchModel();
 
-	private async Task Search()
-	{
-		Books = await bookService.GetBooks(searchText);
-	}
+
+    private async Task Search()
+    {
+        Books = await bookService.GetBooks(searchText);
+    }
+
+    private async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        Shelves = await shelfManager.ReadAllAsync(true);
+        Shelves = Shelves.Where(shelf => shelf.UserId == userId).ToList();
+    }
+
+    private async Task AddToShelf(Book book)
+    {
+        try
+        {
+            var selectedShelf = Shelves.FirstOrDefault(shelf => shelf.Id == SelectedShelfId);
+            if (selectedShelf != null)
+            {
+                selectedShelf.Books.Add(book);
+                await shelfManager.UpdateAsync(selectedShelf);
+                navigationManager.NavigateTo("shelves");
+            }
+            else
+            {
+                Console.WriteLine("No shelf selected.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding book to shelf: {ex.Message}");
+        }
+    }
+
+
+    //private async Task AddToShelf(Book book)
+    //{
+    //    try
+    //    {
+    //        var shelves = await shelfManager.ReadAllAsync(true);
+    //        var selectedShelf = await ShowSelectShelfDialog(shelves);
+
+    //        if (selectedShelf != null)
+    //        {
+    //            selectedShelf.Books.Add(book);
+
+    //            await shelfManager.UpdateAsync(selectedShelf);
+
+    //            navigationManager.NavigateTo("shelves");
+    //        }
+    //        else
+    //        {
+    //            Console.WriteLine("No shelf selected.");
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine($"Error adding book to shelf: {ex.Message}");
+    //    }
+    //}
+
+    //private async Task<Shelf> ShowSelectShelfDialog(IEnumerable<Shelf> shelves)
+    //{        
+    //    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //    var user = authState.User;
+    //    var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    //    shelves = shelves.Where(shelf => shelf.UserId == userId); // Filter shelves by UserId
+
+    //    // Display a dialog or other UI element to let the user select a shelf.
+    //    // This will depend on your UI framework and might involve JavaScript interop.
+    //    var selectedShelf = await DisplayShelfSelectionDialog(shelves);
+
+    //    return selectedShelf;
+    //}
 }

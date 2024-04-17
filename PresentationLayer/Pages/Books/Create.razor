@@ -1,6 +1,7 @@
 ﻿@page "/books/create"
 @using BusinessLayer;
 @using ServiceLayer;
+@using MudBlazor
 @inject BookManager bookManager;
 @inject EditionManager editionManager;
 @inject AuthorManager authorManager;
@@ -48,84 +49,44 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label">Authors</label>
-                <InputSelect multiple @bind-Value="Authors" class="form-control">
-                    @if (Model.Authors.Count == 0)
-                    {
-                        <option selected value="">None</option>
-                    }
-                    @foreach (var item in Authors)
-                    {
-                        <option itemscope itemref="authors" value="@item.Id"> @item.FirstName @item.LastName </option>
-                    }
-                </InputSelect>
-                <span id="authorErrorLbl" class="text-danger">@authorError</span>
+                <div class="col-md-5 col-sm-12">
+                    <MudSelect T="Genre" Label="Select Genres" Variant="Variant.Outlined" Multiple="true" @bind-Value="SelectedGenre">
+                        @foreach (var genre in Genres)
+                        {
+                            <MudSelectItem Value="@genre">@genre.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <MudButton class="btn btn-primary" OnClick="@(() => AddGenre())">Add</MudButton>
+                </div>
+                @foreach (var item in SelectedGenres)
+                {
+                    <a>@item.Name</a>
+                    <a @onclick="@(() => SelectedGenres.Remove(item))"> ✖</a>
+                    <a>| </a>
+                }
             </div>
-            <button type="button" @onclick="AddAuthor">Add Author</button>
 
             <div class="form-group">
-                <label class="control-label">Genres</label>
-                <InputSelect @bind-Value="Genres" class="form-control">
-                    @if (Model.Genres.Count == 0)
-                    {
-                        <option selected value="">None</option>
-                    }
-                    @foreach (var item in Genres)
-                    {
-                        <option value="@item.Id"> @item.Name </option>
-                    }
-                </InputSelect>
-                <span id="genreErrorLbl" class="text-danger">@genreError</span>
+                <div class="col-md-5 col-sm-12">
+                    <MudSelect T="Author" Label="Select Authors" Variant="Variant.Outlined" Multiple="true" @bind-Value="SelectedAuthor">
+                        @foreach (var author in Authors)
+                        {
+                            <MudSelectItem Value="@author">@author.FirstName @author.LastName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <MudButton class="btn btn-primary" OnClick="@(() => AddAuthor())">Add</MudButton>
+                </div>
+                @foreach (var item in SelectedAuthors)
+                {
+                    <a>@item.FirstName @item.LastName</a>
+                    <a @onclick="@(() => SelectedAuthors.Remove(item))"> ✖</a>
+                    <a>| </a>
+                }
             </div>
-            <div class="form-group">
-                <label class="control-label">Authors</label>
-                <InputSelect multiple @bind-Value="SelectedAuthorIds" class="form-control">
-                    @foreach (var author in Authors)
-                    {
-                        <option value="@author.Id">@author.FirstName @author.LastName</option>
-                    }
-                </InputSelect>
-                <span id="authorErrorLbl" class="text-danger">@authorError</span>
-            </div>
-
-            <button type="button" class="btn btn-primary" @onclick="AddSelectedAuthors">Add Selected Authors</button>
-
-            @if (SelectedAuthors.Any())
-            {
-                <h4>Selected Authors:</h4>
-                <ul>
-                    @foreach (var author in SelectedAuthors)
-                    {
-                        <li>@author.FirstName @author.LastName</li>
-                    }
-                </ul>
-            }
-
-
-            @if (SelectedAuthors.Any())
-            {
-                <h4>Selected Authors:</h4>
-                <ul>
-                    @foreach (var author in SelectedAuthors)
-                    {
-                        <li>@author.FirstName @author.LastName</li>
-                    }
-                </ul>
-            }
-
-            <div class="form-group">
-                <label class="control-label">Selected Genres</label>
-                <InputSelect multiple @bind-Value="SelectedGenres" class="form-control">
-                    @foreach (var genre in Genres)
-                    {
-                        <option value="@genre.Id">@genre.Name</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@( () => SelectedGenres )" />
-            </div>
-
-
-
             <br />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -144,12 +105,11 @@
     ICollection<Edition> Editions = new List<Edition>();
     ICollection<Author> Authors = new List<Author>();
     ICollection<Genre> Genres = new List<Genre>();
-    List<int> SelectedAuthorIds = new List<int>();
+    Genre SelectedGenre = null;
+    Author SelectedAuthor = null;
     string editionError;
     string authorError;
     string genreError;
-
-
     List<Author> SelectedAuthors = new();
     List<Genre> SelectedGenres = new();
 
@@ -162,10 +122,9 @@
 
     private async Task LoadNavigation()
     {
-
         Editions = await editionManager.ReadAllAsync(true);
-        Authors = await authorManager.ReadAllAsync();
-        Genres = await genreManager.ReadAllAsync();
+        Authors = await authorManager.ReadAllAsync(true, false);
+        Genres = await genreManager.ReadAllAsync(true, false);
     }
 
     private async Task OnCreated()
@@ -178,46 +137,48 @@
         else
         {
             editionError = string.Empty;
-        }        
+        }
+        Model.Genres ??= new List<Genre>();
 
+        foreach (var selectedGenre in SelectedGenres)
+        {
+            if (!Model.Genres.Contains(selectedGenre))
+            {
+                Model.Genres.Add(selectedGenre);
+            }
+        }
+
+        foreach (var selectedAuthor in SelectedAuthors)
+        {
+            if (!Model.Authors.Contains(selectedAuthor))
+            {
+                Model.Authors.Add(selectedAuthor);
+            }
+        }
+
+        Model.CoverUrl ??= "";
+        Model.Genres = SelectedGenres;
         Model.Edition = new Edition() { Id = Model.EditionId };
-        //Model.Authors = Authors.Where(a => SelectedAuthorIds.Contains(a.Id)).ToList();
-        //Model.Genres = Genres.Where(g => SelectedGenreIds.Contains(g.Id)).ToList();
-
         await bookManager.CreateAsync(Model);
         navigationManager.NavigateTo("books", true);
     }
 
-    private void AddSelectedAuthors()
+    private void AddGenre()
     {
-        if (SelectedAuthorIds.Any())
+        if (SelectedGenre != null)
         {
-            SelectedAuthors.Clear();
-            SelectedAuthors.AddRange(Authors.Where(a => SelectedAuthorIds.Contains(a.Id)));
-        }
-        else
-        {
-            authorError = "Please select at least one author.";
+            SelectedGenres.Add(SelectedGenre);
+            SelectedGenre = null;
         }
     }
 
     private void AddAuthor()
     {
-       // authors
-    }
-    
-    private void RemoveAuthor(Author author)
-    {
-        Model.Authors.Remove(author);
-    }
-    private void AddGenre()
-    {
-        Model.Genres.Add(new Genre());
-    }
-
-    private void RemoveGenre(Genre genre)
-    {
-        Model.Genres.Remove(genre);
+        if (SelectedAuthor != null)
+        {
+            SelectedAuthors.Add(SelectedAuthor);
+            SelectedAuthor = null;
+        }
     }
 
 }

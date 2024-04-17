@@ -36,7 +36,8 @@ namespace PresentationLayer.Services
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userSession.UserName),
-                new Claim(ClaimTypes.Role, userSession.Role.ToString())
+                new Claim(ClaimTypes.Role, userSession.Role.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userSession.UserId)
             }, "CustomAuth"));
                 return await Task.FromResult(new AuthenticationState(claimsPrincipal));
             }
@@ -57,7 +58,8 @@ namespace PresentationLayer.Services
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, userSession.UserName),
-                    new Claim(ClaimTypes.Role, userSession.Role.ToString())
+                    new Claim(ClaimTypes.Role, userSession.Role.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, userSession.UserId)
                 }));
             }
             else
