@@ -29,6 +29,14 @@
 				<label for="name">Last name</label>
 				<InputText id="name" class="form-control" @bind-Value="Model.LastName " />
 			</div>
+			<div class="col-md-4">
+				<label for="name">Email</label>
+				<InputText id="name" class="form-control" @bind-Value="Model.Email " />
+			</div>
+			<div class="col-md-4">
+				<label for="name">Age</label>
+				<InputNumber id="name" class="form-control" TValue="int?" @bind-Value="Model.Age" />
+			</div>
 		</div>
 		<button type="submit" class="btn border-dark mt-2 ml-3">Update profile</button>
 	</div>
@@ -54,7 +62,14 @@
 		try
 		{
 			await identityManager.UpdateUserAsync(Model);
-			await signInManager.RefreshSignInAsync(Model);
+			var customAuthenticationStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+			await customAuthenticationStateProvider.UpdateAuthenticationState(new UserSession
+				{
+					UserName = Model.UserName,
+					Role = Model.Role,
+					UserId = Model.Id
+				});
+			navigationManager.NavigateTo("/", true);
 			//await RefreshSignIn();
 			
 		}

@@ -43,6 +43,25 @@ namespace DataLayer
            .HasForeignKey(s => s.UserId)
            .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Sender)
+                .WithMany()
+                .HasForeignKey(fr => fr.SenderId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany()
+                .HasForeignKey(fr => fr.ReceiverId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendRequest>(entity =>
+            {
+                entity.Property(e => e.RequestId).ValueGeneratedOnAdd();
+            });
+
 
             base.OnModelCreating(modelBuilder);
 		}
@@ -58,5 +77,7 @@ namespace DataLayer
         public DbSet<Publisher> Publishers { get; set; }
 
         public DbSet<Shelf> Shelves { get; set; }
+
+		public DbSet<FriendRequest> FriendRequests { get; set; }
     }
 }

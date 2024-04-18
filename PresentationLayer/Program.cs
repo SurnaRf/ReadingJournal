@@ -41,6 +41,9 @@ public class Program
         builder.Services.AddScoped<UserContext, UserContext>();       
         builder.Services.AddScoped<EditionManager, EditionManager>();
         builder.Services.AddScoped<EditionContext, EditionContext>();
+        builder.Services.AddScoped<FriendRequestManager, FriendRequestManager>();
+        builder.Services.AddScoped<FriendRequestContext, FriendRequestContext>();
+
         builder.Services.AddScoped<ErrorModel, ErrorModel>();
         builder.Services.AddScoped<BookService, BookService>();
 

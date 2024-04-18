@@ -1,0 +1,58 @@
+﻿@page "/searchuser"
+@using Microsoft.AspNetCore.Identity;
+@using ServiceLayer;
+@using BusinessLayer;
+@using System.ComponentModel.DataAnnotations;
+@inject UserManager<User> UserManager
+@inject UserManager identityManager
+@inject FriendRequestManager FriendRequestManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<h3>Search User</h3>
+
+<EditForm Model="@searchUserModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <InputText id="username" class="form-control" @bind-Value="searchUserModel.Username" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+</EditForm>
+
+@if (searchResult != null)
+{
+    <h3>Search Result</h3>
+    <p>@searchResult.FirstName @searchResult.LastName</p>
+    <button class="btn btn-primary" @onclick="() => SendFriendRequest(searchResult.Id)">Send Friend Request</button>
+}
+
+@code {
+    private User searchResult;
+    private SearchUserModel searchUserModel = new();
+
+    private async Task HandleValidSubmit()
+    {
+        searchResult = await UserManager.FindByNameAsync(searchUserModel.Username);
+    }
+
+    private async Task SendFriendRequest(string receiverId)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var name = user.Identity.Name;
+
+        var sender = await identityManager.FindUserByNameAsync(name);
+        var senderId = sender.Id;
+        await FriendRequestManager.SendFriendRequestAsync(senderId, receiverId);
+    }
+
+    public class SearchUserModel
+    {
+        [Required]
+        public string Username { get; set; }
+    }
+}
