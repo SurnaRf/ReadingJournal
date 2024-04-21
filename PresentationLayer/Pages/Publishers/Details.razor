@@ -2,6 +2,7 @@
 @using ServiceLayer;
 @using BusinessLayer;
 @inject PublisherManager publisherManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Details</h3>
 

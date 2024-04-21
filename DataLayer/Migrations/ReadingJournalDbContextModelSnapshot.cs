@@ -27,25 +27,25 @@ namespace DataLayer.Migrations
                     b.Property<int>("AuthorsId")
                         .HasColumnType("int");
 
-                    b.Property<string>("BooksISBN")
-                        .HasColumnType("nvarchar(13)");
+                    b.Property<string>("BooksKey")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("AuthorsId", "BooksISBN");
+                    b.HasKey("AuthorsId", "BooksKey");
 
-                    b.HasIndex("BooksISBN");
+                    b.HasIndex("BooksKey");
 
                     b.ToTable("AuthorBook");
                 });
 
             modelBuilder.Entity("BookGenre", b =>
                 {
-                    b.Property<string>("BooksISBN")
-                        .HasColumnType("nvarchar(13)");
+                    b.Property<string>("BooksKey")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("GenresId")
                         .HasColumnType("int");
 
-                    b.HasKey("BooksISBN", "GenresId");
+                    b.HasKey("BooksKey", "GenresId");
 
                     b.HasIndex("GenresId");
 
@@ -54,13 +54,13 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("BookShelf", b =>
                 {
-                    b.Property<string>("BooksISBN")
-                        .HasColumnType("nvarchar(13)");
+                    b.Property<string>("BooksKey")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ShelvesId")
                         .HasColumnType("int");
 
-                    b.HasKey("BooksISBN", "ShelvesId");
+                    b.HasKey("BooksKey", "ShelvesId");
 
                     b.HasIndex("ShelvesId");
 
@@ -90,9 +90,8 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("BusinessLayer.Book", b =>
                 {
-                    b.Property<string>("ISBN")
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CoverUrl")
                         .IsRequired()
@@ -102,9 +101,6 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EditionId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("PublisherId")
                         .HasColumnType("int");
 
@@ -112,9 +108,7 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ISBN");
-
-                    b.HasIndex("EditionId");
+                    b.HasKey("Key");
 
                     b.HasIndex("PublisherId");
 
@@ -123,11 +117,11 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("BusinessLayer.Edition", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    b.Property<string>("BookId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CoverType")
                         .IsRequired()
@@ -143,6 +137,8 @@ namespace DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookId");
 
                     b.HasIndex("PublisherId");
 
@@ -487,7 +483,7 @@ namespace DataLayer.Migrations
 
                     b.HasOne("BusinessLayer.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksISBN")
+                        .HasForeignKey("BooksKey")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -496,7 +492,7 @@ namespace DataLayer.Migrations
                 {
                     b.HasOne("BusinessLayer.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksISBN")
+                        .HasForeignKey("BooksKey")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -511,7 +507,7 @@ namespace DataLayer.Migrations
                 {
                     b.HasOne("BusinessLayer.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksISBN")
+                        .HasForeignKey("BooksKey")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -524,26 +520,25 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("BusinessLayer.Book", b =>
                 {
-                    b.HasOne("BusinessLayer.Edition", "Edition")
-                        .WithMany()
-                        .HasForeignKey("EditionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BusinessLayer.Publisher", null)
                         .WithMany("Books")
                         .HasForeignKey("PublisherId");
-
-                    b.Navigation("Edition");
                 });
 
             modelBuilder.Entity("BusinessLayer.Edition", b =>
                 {
+                    b.HasOne("BusinessLayer.Book", "Book")
+                        .WithMany("Editions")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("BusinessLayer.Publisher", "Publisher")
                         .WithMany()
                         .HasForeignKey("PublisherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Book");
 
                     b.Navigation("Publisher");
                 });
@@ -653,6 +648,11 @@ namespace DataLayer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessLayer.Book", b =>
+                {
+                    b.Navigation("Editions");
                 });
 
             modelBuilder.Entity("BusinessLayer.Publisher", b =>

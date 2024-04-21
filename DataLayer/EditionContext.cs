@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataLayer
 {
-	public class EditionContext : IDb<Edition, int>
+	public class EditionContext : IDb<Edition, string>
 	{
 		private readonly ReadingJournalDbContext dbContext;
 
@@ -38,7 +38,7 @@ namespace DataLayer
 			}
 		}
 
-		public async Task<Edition> ReadAsync(int key, bool useNavigationalProperties = false, bool isReadOnly = true)
+		public async Task<Edition> ReadAsync(string key, bool useNavigationalProperties = false, bool isReadOnly = true)
 		{
 			try
 			{
@@ -124,7 +124,7 @@ namespace DataLayer
 			}
 		}
 
-		public async Task DeleteAsync(int key)
+		public async Task DeleteAsync(string key)
 		{
 			try
 			{

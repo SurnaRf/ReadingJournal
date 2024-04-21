@@ -1,7 +1,8 @@
-﻿@page "/editions/details/{Id:int}"
+﻿@page "/editions/details/{Id}"
 @using BusinessLayer;
 @using ServiceLayer;
 @inject EditionManager editionManager
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Details</h3>
 
@@ -51,6 +52,19 @@
                 <span>Publisher not available</span>
             }
         </dd>
+        <dt class="col-sm-2">
+            Book
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Book != null)
+            {
+                @Model.Book.Title
+            }
+            else
+            {
+                <span>Book not available</span>
+            }
+        </dd>
     </dl>
 </div>
 <div>
@@ -61,7 +75,7 @@
 @code
 {
     [Parameter]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     Edition Model = new();    
 

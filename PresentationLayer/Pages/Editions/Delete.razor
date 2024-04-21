@@ -1,9 +1,10 @@
-﻿@page "/editions/delete/{Id:int}"
+﻿@page "/editions/delete/{Id}"
 @using BusinessLayer;
 @using ServiceLayer;
 @inject EditionManager editionManager;
 @inject NavigationManager navigationManager;
 @inject ErrorModel errorModel;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Delete</h3>
 
@@ -37,7 +38,7 @@
 	Edition Model = new();
 
 	[Parameter]
-	public int Id { get; set; }
+	public string Id { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{

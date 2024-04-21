@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-
 <PageTitle>PresentationLayer</PageTitle>
 
 <MudThemeProvider />
@@ -35,7 +34,7 @@
                     </NavLink>
                     <NavLink href="user/profile">
                         <span aria-hidden="true"></span> Profile
-                    </NavLink>
+                    </NavLink>                   
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -49,8 +48,23 @@
                         <span aria-hidden="true"></span> Login
                     </NavLink>
                 </div>
+ 
             </NotAuthorized>
-        </AuthorizeView>            
+        </AuthorizeView>
+            <AuthorizeView Roles="User">
+                <Authorized>
+                    <div class="nav-link px-3">
+                        <NavLink href="searchuser">
+                            <span aria-hidden="true"></span> Search users
+                        </NavLink>
+                    </div>
+                    <div class="nav-link px-3">
+                        <NavLink href="friendrequests">
+                            <span aria-hidden="true"></span> Friend requests
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">

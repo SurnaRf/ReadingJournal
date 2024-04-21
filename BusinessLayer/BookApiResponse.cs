@@ -34,7 +34,16 @@ namespace BusinessLayer
         [JsonPropertyName("author_name")]
         public List<string> AuthorNames { get; set; }
 
-        [JsonPropertyName("first_publish_year")]
-        public int FirstPublishYear { get; set; }
+        [JsonPropertyName("publish_year")]
+        public List<int>? PublishYear { get; set; }
+
+        [JsonPropertyName("publisher")]
+        public List<string> Publisher { get; set; }
+
+        [JsonPropertyName("edition_key")]
+        public List<string> EditionKey { get; set; }
+
+        [JsonPropertyName("number_of_pages_median")]
+        public int NumberOfPages { get; set; }
     }
 }

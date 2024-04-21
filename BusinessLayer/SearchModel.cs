@@ -9,5 +9,10 @@ namespace BusinessLayer
     public class SearchModel
     {
         public int SelectedShelfId { get; set; }
+
+        public SearchModel()
+        {
+            
+        }
     }
 }

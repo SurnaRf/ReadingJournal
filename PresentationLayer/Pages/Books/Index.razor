@@ -3,6 +3,7 @@
 @using ServiceLayer;
 @inject BookManager bookManager;
 @inject NavigationManager navigationManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Index</h3>
 
@@ -19,9 +20,6 @@
             </th>
             <th>
                 Description
-            </th>
-            <th>
-               Edition
             </th>
             <th></th>
         </tr>
@@ -42,14 +40,10 @@
                     <td>
                         @item.Description
                     </td>                   
-
-                    <td>
-                        @item.Edition.Id
-                    </td>
                     <td>                        
-                        <a href="books/edit/@item.ISBN">Edit</a> |
-                        <a href="books/details/@item.ISBN">Details</a> |
-                        <a href="books/delete/@item.ISBN">Delete</a>
+                        <a href="books/edit/@item.Key">Edit</a> |
+                        <a href="books/details/@item.Key">Details</a> |
+                        <a href="books/delete/@item.Key">Delete</a>
                     </td>
                 </tr>
             }

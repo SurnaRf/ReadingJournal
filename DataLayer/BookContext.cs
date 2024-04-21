@@ -22,12 +22,12 @@ namespace DataLayer
 		{
 			try
 			{
-				Edition editionFromDb = await dbContext.Editions.FindAsync(item.EditionId);
+				//Edition editionFromDb = await dbContext.Editions.FindAsync(item.Edition.Id);
 
-				if (editionFromDb != null)
-				{
-					item.Edition = editionFromDb;
-				}
+				//if (editionFromDb != null)
+				//{
+				//	item.Edition = editionFromDb;
+				//}
 
 				List<Author> authors = new();
 
@@ -45,7 +45,24 @@ namespace DataLayer
 						authors.Add(author);
 					}
 				}
-				item.Authors = authors;
+                List<Edition> editions = new();
+
+                foreach (Edition edition in item.Editions)
+                {
+                    Edition editionFromDb = await dbContext.Editions.FindAsync(edition.Id);
+
+                    if (editionFromDb != null)
+                    {
+                        editions.Add(editionFromDb);
+                    }
+
+                    else
+                    {
+                        editions.Add(edition);
+                    }
+                }
+                item.Authors = authors;
+                item.Editions = editions;
 
 				dbContext.Books.Add(item);
 				await dbContext.SaveChangesAsync();
@@ -68,7 +85,7 @@ namespace DataLayer
 					query = query.Include(b => b.Genres)
 								.Include(b => b.Authors)
 								.Include(b => b.Shelves)
-								.Include(b => b.Edition);
+								.Include(b => b.Editions);
 				}
 
 				if (isReadOnly)
@@ -76,7 +93,7 @@ namespace DataLayer
 					query = query.AsNoTrackingWithIdentityResolution();
 				}
 
-				return await query.FirstOrDefaultAsync(b => b.ISBN == key);
+				return await query.FirstOrDefaultAsync(b => b.Key == key);
 			}
 			catch (Exception)
 			{
@@ -96,7 +113,7 @@ namespace DataLayer
                     query = query.Include(b => b.Genres)
                                 .Include(b => b.Authors)
                                 .Include(b => b.Shelves)
-                                .Include(b => b.Edition);
+                                .Include(b => b.Editions);
                 }
 
                 if (isReadOnly)
@@ -129,7 +146,7 @@ namespace DataLayer
 		{
 			try
 			{
-				Book bookFromDb = await ReadAsync(item.ISBN, useNavigationalProperties, false);
+				Book bookFromDb = await ReadAsync(item.Key, useNavigationalProperties, false);
 
 				if (bookFromDb == null)
 				{
@@ -141,17 +158,17 @@ namespace DataLayer
 
 				if (useNavigationalProperties)
 				{
-					Edition editionFromDb = await dbContext.Editions.FindAsync(item.EditionId);
+					//Edition editionFromDb = await dbContext.Editions.FindAsync(item.Edition.Id);
 
-					if (editionFromDb != null)
-					{
-						bookFromDb.Edition = editionFromDb;
-					}
+					//if (editionFromDb != null)
+					//{
+					//	bookFromDb.Edition = editionFromDb;
+					//}
 
-					else
-					{
-						bookFromDb.Edition = item.Edition;
-					}
+					//else
+					//{
+					//	bookFromDb.Edition = item.Edition;
+					//}
 
                     List<Author> authors = new();
 
@@ -204,9 +221,27 @@ namespace DataLayer
                         }
                     }
 
+					List<Edition> editions = new();
+
+                    foreach (Edition edition in item.Editions)
+                    {
+                        Edition editionFromDb = await dbContext.Editions.FindAsync(edition.Id);
+
+                        if (editionFromDb != null)
+                        {
+                            editions.Add(editionFromDb);
+                        }
+
+                        else
+                        {
+                            editions.Add(edition);
+                        }
+                    }
+
                     bookFromDb.Authors = authors;
 					bookFromDb.Shelves = shelves;
 					bookFromDb.Genres = genres;
+					bookFromDb.Editions = editions;
                 }
 
 				await dbContext.SaveChangesAsync();

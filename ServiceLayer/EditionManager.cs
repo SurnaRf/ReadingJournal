@@ -22,7 +22,7 @@ namespace ServiceLayer
             await editionContext.CreateAsync(edition);
         }
 
-        public async Task<Edition> ReadAsync(int key, bool useNavigationalProperties = false, bool isReadOnly = true)
+        public async Task<Edition> ReadAsync(string key, bool useNavigationalProperties = false, bool isReadOnly = true)
         {
             return await editionContext.ReadAsync(key, useNavigationalProperties, isReadOnly);
         }
@@ -37,7 +37,7 @@ namespace ServiceLayer
             await editionContext.UpdateAsync(item, useNavigationalProperties);
         }
 
-        public async Task DeleteAsync(int key)
+        public async Task DeleteAsync(string key)
         {
             await editionContext.DeleteAsync(key);
         }

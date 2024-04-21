@@ -14,9 +14,8 @@ namespace BusinessLayer
 	public class Book
 	{
 		[Key] 
-        [Required(ErrorMessage = "Enter ISBN!")]
-        [StringLength(13, MinimumLength = 13, ErrorMessage = "ISBN must be exactly 13 symbols!")]
-		public string ISBN { get; set; }
+        [Required(ErrorMessage = "Enter Key!")]
+		public string Key { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -26,13 +25,8 @@ namespace BusinessLayer
 
         [AllowNull]
         public string CoverUrl { get; set; }
-
-        [Required]
-        public Edition Edition { get; set; }
-
-        [DisplayName("Edition")]
-        [ForeignKey("Edition")]
-        public int EditionId { get; set; }
+        
+        public List<Edition> Editions { get; set; }
 
         [Required]
         public List<Author> Authors { get; set; } 
@@ -46,17 +40,18 @@ namespace BusinessLayer
             Shelves = new();
             Genres = new();
             Authors = new();
+            Editions = new();
         }
 
-		public Book(string title, string description, string iSBN, Edition edition)
+		public Book(string title, string description, string key)
 		{
 			Title = title;
 			Description = description;
-			ISBN = iSBN;
-			Edition = edition;
+			Key = key;
 			Shelves = new();
 			Genres = new();
             Authors = new();
+            Editions = new();
 		}
 	}
 }

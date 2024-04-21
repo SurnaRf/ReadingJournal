@@ -3,6 +3,7 @@
 @using BusinessLayer;
 @inject GenreManager genreManager
 @inject NavigationManager navigationManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Index</h3>
 

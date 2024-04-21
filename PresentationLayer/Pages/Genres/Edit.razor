@@ -4,6 +4,7 @@
 @inject GenreManager genreManager;
 @inject NavigationManager navigationManager;
 @inject ErrorModel errorModel;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Edit</h3>
 

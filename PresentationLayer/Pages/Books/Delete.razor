@@ -1,9 +1,10 @@
-﻿@page "/books/delete/{ISBN}"
+﻿@page "/books/delete/{Key}"
 @using BusinessLayer;
 @using ServiceLayer;
 @inject BookManager bookManager;
 @inject NavigationManager navigationManager;
 @inject ErrorModel errorModel;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Delete</h3>
 
@@ -37,18 +38,18 @@
 	Book Model = new();
 
 	[Parameter]
-	public string ISBN { get; set; }
+	public string Key { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
-		Model = await bookManager.ReadAsync(ISBN, true, false);
+		Model = await bookManager.ReadAsync(Key, true, false);
 	}
 
 	async Task OnDeleted()
 	{
 		try
 		{
-			await bookManager.DeleteAsync(Model.ISBN);
+			await bookManager.DeleteAsync(Model.Key);
 			navigationManager.NavigateTo("books");
 		}
 		catch (Exception ex)

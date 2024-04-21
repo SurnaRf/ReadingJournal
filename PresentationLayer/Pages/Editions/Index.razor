@@ -3,6 +3,7 @@
 @using BusinessLayer;
 @inject EditionManager editionManager
 @inject NavigationManager navigationManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Index</h3>
 
@@ -83,7 +84,7 @@
         await base.OnInitializedAsync();
     }
 
-    async Task OnFastDelete(int id)
+    async Task OnFastDelete(string id)
     {
         try
         {

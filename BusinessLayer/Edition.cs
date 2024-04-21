@@ -12,7 +12,7 @@ namespace BusinessLayer
 	public class Edition
 	{
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public DateTime PublicationDate { get; set; }
@@ -21,6 +21,12 @@ namespace BusinessLayer
 
         [Required]
         public CoverType CoverType { get; set; }
+
+		[ForeignKey("Book")]
+		[DisplayName("Book")]
+		public string? BookId { get; set; }
+
+		public Book? Book { get; set; }
 
         [Required]
         public Publisher Publisher { get; set; }
@@ -31,15 +37,17 @@ namespace BusinessLayer
 
         public Edition() 
 		{
+            Id = Guid.NewGuid().ToString();
+        }
 
-		}
-
-		public Edition(DateTime publicationDate, int numberOfPages, CoverType coverType, Publisher publisher)
+		public Edition(DateTime publicationDate, int numberOfPages, CoverType coverType, Publisher publisher, Book book = null)
 		{
+			Id = Guid.NewGuid().ToString();
 			PublicationDate = publicationDate;
 			NumberOfPages = numberOfPages;
 			CoverType = coverType;
 			Publisher = publisher;
+			Book = book;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 @using ServiceLayer;
 @using BusinessLayer;
 @inject GenreManager genreManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Details</h3>
 

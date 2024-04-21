@@ -21,7 +21,7 @@ namespace PresentationLayer.Services
 
         public async Task<ICollection<Book>> GetBooks(string query = "")
         {
-            var apiResponse = await httpClient.GetAsync($"{configuration["BookAPI"]}?q={Uri.EscapeDataString(query)}");
+            var apiResponse = await httpClient.GetAsync($"{configuration["BookAPI"]}?q={Uri.EscapeDataString(query)}&limit=25");
 
             if (!apiResponse.IsSuccessStatusCode)
             {
@@ -38,19 +38,40 @@ namespace PresentationLayer.Services
             {
                 foreach (var apiBook in bookApiResponse.Docs)
                 {
-                    var book = new Book
-                    {
-                        ISBN = apiBook.Key,
-                        Title = apiBook.Title,
-                        Description = "", 
-                        Edition = new Edition(),
-                        Authors = apiBook.AuthorNames != null
-                    ? apiBook.AuthorNames.Select(name => new Author { FirstName = name }).ToList()
-                    : new List<Author>(),
-                        CoverUrl = GetCoverUrl(apiBook.CoverId)
-                    };
+                    string[] keyParts = apiBook.Key.Split('/');
 
-                    books.Add(book);
+                    if (keyParts.Length >= 3)
+                    {
+                        string keyAfterSecondSlash = keyParts[2];
+
+                        Book book = new Book
+                        {
+                            Key = keyAfterSecondSlash,
+                            Title = apiBook.Title,
+                            Description = "",
+                            Authors = apiBook.AuthorNames != null
+                                ? apiBook.AuthorNames.Select(name =>
+                                {
+                                    string[] names = name.Split(' ');
+                                    if (names.Length == 1)
+                                    {
+                                        return new Author(names[0], "Unknown");
+                                    }
+                                    else if (names.Length == 2)
+                                    {
+                                        return new Author { FirstName = names[0], LastName = names[1] };
+                                    }
+                                    else
+                                    {
+                                        return new Author("John", "Doe");
+                                    }
+                                }).ToList()
+                                : new List<Author>() { new Author("John", "Doe") },
+                            CoverUrl = GetCoverUrl(apiBook.CoverId)
+                        };
+
+                        books.Add(book);
+                    }
                 }
             }
 
@@ -59,19 +80,22 @@ namespace PresentationLayer.Services
 
         private string GetCoverUrl(int coverId)
         {
-            // Construct the URL for the cover image based on the CoverId
             if (coverId > 0)
             {
                 return $"https://covers.openlibrary.org/b/id/{coverId}-L.jpg";
             }
 
-            // Default cover URL if no valid CoverId is available
-            return "https://via.placeholder.com/150"; // Placeholder image URL
+            return "https://via.placeholder.com/150"; 
         }
 
         public async Task<ICollection<Book>> SearchBooks(string searchText)
         {
             throw new NotImplementedException();
         }
+        private int? ParsePublishYear(List<int>? publishYearList)
+        {
+            return publishYearList?.FirstOrDefault();
+        }
+
     }
 }

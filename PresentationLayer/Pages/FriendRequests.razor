@@ -6,6 +6,8 @@
 @inject UserManager identityManager
 @inject FriendRequestManager friendRequestManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "User")]
+
 
 <h3>Friend Requests</h3>
 

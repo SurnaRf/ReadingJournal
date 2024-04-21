@@ -7,6 +7,8 @@
 @inject UserManager identityManager
 @inject FriendRequestManager FriendRequestManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "User")]
+
 
 
 <h3>Search User</h3>

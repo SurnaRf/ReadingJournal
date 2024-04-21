@@ -62,6 +62,12 @@ namespace DataLayer
                 entity.Property(e => e.RequestId).ValueGeneratedOnAdd();
             });
 
+            modelBuilder.Entity<Edition>()
+           .HasOne(e => e.Book)
+           .WithMany(b => b.Editions)
+           .HasForeignKey(s => s.BookId)
+           .OnDelete(DeleteBehavior.Cascade);
+
 
             base.OnModelCreating(modelBuilder);
 		}

@@ -1,9 +1,10 @@
-﻿@page "/editions/edit/{Id:int}"
+﻿@page "/editions/edit/{Id}"
 @using BusinessLayer;
 @using ServiceLayer;
 @inject EditionManager editionManager;
 @inject PublisherManager publisherManager;
 @inject NavigationManager navigationManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Edit</h3>
 
@@ -64,7 +65,7 @@
     ICollection<Publisher> Publishers = new List<Publisher>();    
 
     [Parameter]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

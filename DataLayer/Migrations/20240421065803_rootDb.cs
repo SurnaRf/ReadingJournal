@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataLayer.Migrations
 {
-    public partial class rootDB : Migration
+    public partial class rootDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,6 +29,7 @@ namespace DataLayer.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Age = table.Column<int>(type: "int", nullable: true),
                     Role = table.Column<int>(type: "int", nullable: false),
@@ -205,6 +206,38 @@ namespace DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FriendRequests",
+                columns: table => new
+                {
+                    RequestId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsAccepted = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FriendRequests", x => x.RequestId);
+                    table.ForeignKey(
+                        name: "FK_FriendRequests_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FriendRequests_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FriendRequests_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Shelves",
                 columns: table => new
                 {
@@ -250,46 +283,18 @@ namespace DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Editions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PublicationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NumberOfPages = table.Column<int>(type: "int", nullable: false),
-                    CoverType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PublisherId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Editions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Editions_Publishers_PublisherId",
-                        column: x => x.PublisherId,
-                        principalTable: "Publishers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Books",
                 columns: table => new
                 {
-                    ISBN = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
+                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EditionId = table.Column<int>(type: "int", nullable: false),
+                    CoverUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PublisherId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Books", x => x.ISBN);
-                    table.ForeignKey(
-                        name: "FK_Books_Editions_EditionId",
-                        column: x => x.EditionId,
-                        principalTable: "Editions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Books", x => x.Key);
                     table.ForeignKey(
                         name: "FK_Books_Publishers_PublisherId",
                         column: x => x.PublisherId,
@@ -302,11 +307,11 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     AuthorsId = table.Column<int>(type: "int", nullable: false),
-                    BooksISBN = table.Column<string>(type: "nvarchar(13)", nullable: false)
+                    BooksKey = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthorBook", x => new { x.AuthorsId, x.BooksISBN });
+                    table.PrimaryKey("PK_AuthorBook", x => new { x.AuthorsId, x.BooksKey });
                     table.ForeignKey(
                         name: "FK_AuthorBook_Authors_AuthorsId",
                         column: x => x.AuthorsId,
@@ -314,10 +319,10 @@ namespace DataLayer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AuthorBook_Books_BooksISBN",
-                        column: x => x.BooksISBN,
+                        name: "FK_AuthorBook_Books_BooksKey",
+                        column: x => x.BooksKey,
                         principalTable: "Books",
-                        principalColumn: "ISBN",
+                        principalColumn: "Key",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -325,17 +330,17 @@ namespace DataLayer.Migrations
                 name: "BookGenre",
                 columns: table => new
                 {
-                    BooksISBN = table.Column<string>(type: "nvarchar(13)", nullable: false),
+                    BooksKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     GenresId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookGenre", x => new { x.BooksISBN, x.GenresId });
+                    table.PrimaryKey("PK_BookGenre", x => new { x.BooksKey, x.GenresId });
                     table.ForeignKey(
-                        name: "FK_BookGenre_Books_BooksISBN",
-                        column: x => x.BooksISBN,
+                        name: "FK_BookGenre_Books_BooksKey",
+                        column: x => x.BooksKey,
                         principalTable: "Books",
-                        principalColumn: "ISBN",
+                        principalColumn: "Key",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BookGenre_Genres_GenresId",
@@ -349,22 +354,50 @@ namespace DataLayer.Migrations
                 name: "BookShelf",
                 columns: table => new
                 {
-                    BooksISBN = table.Column<string>(type: "nvarchar(13)", nullable: false),
+                    BooksKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ShelvesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookShelf", x => new { x.BooksISBN, x.ShelvesId });
+                    table.PrimaryKey("PK_BookShelf", x => new { x.BooksKey, x.ShelvesId });
                     table.ForeignKey(
-                        name: "FK_BookShelf_Books_BooksISBN",
-                        column: x => x.BooksISBN,
+                        name: "FK_BookShelf_Books_BooksKey",
+                        column: x => x.BooksKey,
                         principalTable: "Books",
-                        principalColumn: "ISBN",
+                        principalColumn: "Key",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BookShelf_Shelves_ShelvesId",
                         column: x => x.ShelvesId,
                         principalTable: "Shelves",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Editions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PublicationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NumberOfPages = table.Column<int>(type: "int", nullable: false),
+                    CoverType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PublisherId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Editions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Editions_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "Key",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Editions_Publishers_PublisherId",
+                        column: x => x.PublisherId,
+                        principalTable: "Publishers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -414,19 +447,14 @@ namespace DataLayer.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuthorBook_BooksISBN",
+                name: "IX_AuthorBook_BooksKey",
                 table: "AuthorBook",
-                column: "BooksISBN");
+                column: "BooksKey");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookGenre_GenresId",
                 table: "BookGenre",
                 column: "GenresId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Books_EditionId",
-                table: "Books",
-                column: "EditionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_PublisherId",
@@ -439,9 +467,29 @@ namespace DataLayer.Migrations
                 column: "ShelvesId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Editions_BookId",
+                table: "Editions",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Editions_PublisherId",
                 table: "Editions",
                 column: "PublisherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FriendRequests_ReceiverId",
+                table: "FriendRequests",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FriendRequests_SenderId",
+                table: "FriendRequests",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FriendRequests_UserId",
+                table: "FriendRequests",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GenreUser_UsersId",
@@ -481,6 +529,12 @@ namespace DataLayer.Migrations
                 name: "BookShelf");
 
             migrationBuilder.DropTable(
+                name: "Editions");
+
+            migrationBuilder.DropTable(
+                name: "FriendRequests");
+
+            migrationBuilder.DropTable(
                 name: "GenreUser");
 
             migrationBuilder.DropTable(
@@ -490,16 +544,13 @@ namespace DataLayer.Migrations
                 name: "Authors");
 
             migrationBuilder.DropTable(
-                name: "Books");
-
-            migrationBuilder.DropTable(
                 name: "Shelves");
 
             migrationBuilder.DropTable(
-                name: "Genres");
+                name: "Books");
 
             migrationBuilder.DropTable(
-                name: "Editions");
+                name: "Genres");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

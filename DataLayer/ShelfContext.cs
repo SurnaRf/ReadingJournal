@@ -118,7 +118,7 @@ namespace DataLayer
 
 					foreach (Book book in item.Books)
 					{
-						Book bookFromDb = await dbContext.Books.FindAsync(book.ISBN);
+						Book bookFromDb = await dbContext.Books.FindAsync(book.Key);
 
 						if (bookFromDb == null)
 						{

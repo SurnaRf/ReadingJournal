@@ -4,6 +4,7 @@
 @inject PublisherManager publisherManager;
 @inject NavigationManager navigationManager;
 @inject ErrorModel errorModel;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Create</h3>
 

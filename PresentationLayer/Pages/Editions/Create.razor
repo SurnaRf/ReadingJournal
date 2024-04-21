@@ -4,6 +4,7 @@
 @inject EditionManager editionManager;
 @inject PublisherManager publisherManager;
 @inject NavigationManager navigationManager;
+@attribute [Authorize(Roles = "Administrator")]
 
 <h3>Create</h3>
 
