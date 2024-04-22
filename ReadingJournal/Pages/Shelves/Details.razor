@@ -1,0 +1,263 @@
+﻿@page "/shelves/details/{Id:int}"
+@using BusinessLayer
+@using ServiceLayer
+@inject ShelfManager shelfManager
+@inject UserManager userManager
+@inject BookManager bookManager
+
+<h3>Details</h3>
+
+@if (Model != null)
+{
+    <div>
+        <h4>Shelf</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Name
+            </dt>
+            <dd class="col-sm-10">
+                @Model.Name
+            </dd>
+            <dt class="col-sm-2">
+                User
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.User != null)
+                {
+                    @Model.User.UserName
+                }
+                else
+                {
+                    <span>User not available</span>
+                }
+            </dd>
+            <dt class="col-sm-2">
+                Shelf purpose
+            </dt>
+            <dd class="col-sm-10">
+                @Model.ShelfPurpose
+            </dd>
+            <dt class="col-sm-2">
+                Books
+            </dt>
+            <dd class="col-sm-10">
+                @foreach (var book in Model.Books)
+                {
+                    var userBook = UserBooks.FirstOrDefault(ub => ub.BookId == book.Key);
+                    <div>
+                        <span>@book.Title</span>
+                        <br/>
+                        @if (userBook != null)
+                        {
+                            <StarRating Rating="userBook.Rating ?? 0" RatingChanged="((rating) => UpdateBookRating(userBook, rating))" />
+                        }
+                        else
+                        {
+                            <span>User book information not available</span>
+                        }
+                    </div>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <a href="shelves/edit/@Model.Id">Edit</a> |
+        <a href="shelves">Back to List</a>
+    </div>
+}
+else
+{
+    <p>Loading shelf details...</p>
+}
+
+@code {
+    Shelf Model = null;
+    List<UserBook> UserBooks = new List<UserBook>();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await shelfManager.ReadAsync(Id, true, true);
+        if (Model != null)
+        {
+            Model.User = await userManager.ReadUserAsync(Model.UserId);
+            foreach (var book in Model.Books)
+            {
+                var userBook = await bookManager.ReadUserBookAsync(Model.User.Id, book.Key);
+                if (userBook != null)
+                {
+                    UserBooks.Add(userBook);
+                }
+            }
+        }
+    }
+
+    private async Task UpdateBookRating(UserBook userBook, int rating)
+    {
+        if (userBook != null)
+        {
+            userBook.Rating = rating;
+            await bookManager.UpdateUserBookAsync(userBook);
+        }
+    }
+}
+
+
+@*@page "/shelves/details/{Id:int}"
+@using BusinessLayer
+@using ServiceLayer
+@inject ShelfManager shelfManager
+@inject UserManager userManager
+@inject NavigationManager navigationManager
+
+<h3>Details</h3>
+
+@if (Model != null)
+{
+    <div>
+        <h4>Shelf</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Name
+            </dt>
+            <dd class="col-sm-10">
+                @Model.Name
+            </dd>
+            <dt class="col-sm-2">
+                User
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.User != null)
+                {
+                    @Model.User.UserName
+                }
+                else
+                {
+                    <span>User not available</span>
+                }
+            </dd>
+            <dt class="col-sm-2">
+                Shelf purpose
+            </dt>
+            <dd class="col-sm-10">
+                @Model.ShelfPurpose
+            </dd>
+            <dt class="col-sm-2">
+                Books
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.Books.Any())
+                {
+                    <ul>
+                        @foreach (var book in Model.Books)
+                        {
+                            <li>
+                                <button @onclick="() => RateBook(book)">Rate @book.Title</button>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span>No books in this shelf</span>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <a href="shelves/edit/@Model.Id">Edit</a> |
+        <a href="shelves">Back to List</a>
+    </div>
+}
+
+@code
+{
+    Shelf Model = null;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await shelfManager.ReadAsync(Id, true, true);
+        if (Model != null)
+        {
+            Model.User = await userManager.ReadUserAsync(Model.UserId);
+        }
+    }
+
+    private void RateBook(Book book)
+    {
+        navigationManager.NavigateTo($"shelves/details/{Id}/rate/{book.Key}");
+    }
+}*@
+
+@*@page "/shelves/details/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject ShelfManager shelfManager;
+@inject UserManager userManager;
+
+<h3>Details</h3>
+
+<div>
+    <h4>Shelf</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Name
+        </dd>
+        <dt class="col-sm-2">
+            User
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.User != null)
+            {
+                @Model.User.UserName
+            }
+            else
+            {
+                <span>User not available</span>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            Shelf purpose
+        </dt>
+        <dd class="col-sm-10">
+            @Model.ShelfPurpose
+        </dd>
+        <dt class="col-sm-2">
+            Books
+        </dt>
+        <dd class="col-sm-10">
+            @string.Join(", ", Model.Books.Select(b => b.Title))
+        </dd>
+
+    </dl>
+</div>
+<div>
+    <a href="shelves/edit/@Model.Id">Edit</a> |
+    <a href="shelves">Back to List</a>
+</div>
+
+@code
+{
+    Shelf Model = new();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await shelfManager.ReadAsync(Id, true, true);
+        Model.User = await userManager.ReadUserAsync(Model.UserId);
+    }
+
+}*@

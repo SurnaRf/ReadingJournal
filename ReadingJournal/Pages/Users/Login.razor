@@ -1,0 +1,69 @@
+﻿@page "/user/login"
+@using BusinessLayer;
+@using Microsoft.AspNetCore.Identity;
+@using ServiceLayer;
+@using Services;
+@using Microsoft.Extensions.Logging;
+@inject IJSRuntime js;
+@inject NavigationManager navigationManager;
+@inject UserManager<User> userManager;
+@inject UserManager identityManager;
+@inject SignInManager<User> signInManger;
+@inject AuthenticationStateProvider authenticationStateProvider;
+
+<h3>Login</h3>
+
+<EditForm Model="@Model" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="form-row">
+            <div class="col-md-4">
+                <label for="name">Username</label>
+                <InputText id="name" class="form-control" @bind-Value="Model.UserName " />
+            </div>
+            <div class="col-md-4">
+                <label for="password">Password</label>
+                <InputText class="form-control" id="password" type="password" @bind-Value="Model.Password" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="md-1">
+                <button type="submit" class="btn">Login</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    User Model = new();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var userAccount = await userManager.FindByNameAsync(Model.UserName);
+            if(userAccount == null || userAccount.Password != Model.Password)
+            {
+                await js.InvokeVoidAsync("alert", "Invalid data");
+                return;
+            }
+
+            var customAuthenticationStateProvider = (CustomAuthenticationStateProvider)authenticationStateProvider;
+            await customAuthenticationStateProvider.UpdateAuthenticationState(new UserSession
+                {
+                    UserName = userAccount.UserName,
+                    Role = userAccount.Role,
+                    UserId = userAccount.Id
+                });
+            navigationManager.NavigateTo("/", true);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+}

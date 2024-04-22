@@ -35,12 +35,15 @@ namespace BusinessLayer
 
         public List<Genre> Genres { get; set; }
 
+        public List<UserBook> UserBooks { get; set; }
+
         public Book()
         {
             Shelves = new();
             Genres = new();
             Authors = new();
             Editions = new();
+            UserBooks = new();
         }
 
 		public Book(string title, string description, string key)
@@ -52,6 +55,7 @@ namespace BusinessLayer
 			Genres = new();
             Authors = new();
             Editions = new();
+            UserBooks = new();
 		}
 	}
 }

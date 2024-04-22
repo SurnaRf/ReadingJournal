@@ -1,0 +1,66 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>ReadingJournal</PageTitle>
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+
+        <div class="top-row px-4">
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <p>Hello, @context.User.Identity?.Name!</p>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink href="user/logout">
+                        <span aria-hidden="true"></span> Logout
+                    </NavLink>
+                    <NavLink href="user/profile">
+                        <span aria-hidden="true"></span> Profile
+                    </NavLink>                   
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-link px-3">
+                    <NavLink href="user/create">
+                        <span aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+                <div class="nav-link px-3">
+                    <NavLink href="user/login">
+                        <span aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+ 
+            </NotAuthorized>
+        </AuthorizeView>
+            <AuthorizeView Roles="User">
+                <Authorized>
+                    <div class="nav-link px-3">
+                        <NavLink href="searchuser">
+                            <span aria-hidden="true"></span> Search users
+                        </NavLink>
+                    </div>
+                    <div class="nav-link px-3">
+                        <NavLink href="friendrequests">
+                            <span aria-hidden="true"></span> Friend requests
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+

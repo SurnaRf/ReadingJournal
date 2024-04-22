@@ -3,6 +3,7 @@ using DataLayer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,6 +41,21 @@ namespace ServiceLayer
         public async Task DeleteAsync(string key)
         {
             await bookContext.DeleteAsync(key);
+        }
+
+        public async Task UpdateUserBookAsync(UserBook item, bool useNavigationalProperties = false)
+        {
+            await bookContext.UpdateUserBookAsync(item, useNavigationalProperties);
+        }
+
+        public async Task<UserBook> ReadUserBookAsync(string userId, string bookKey, bool useNavigationalProperties = false, bool isReadOnly = true)
+        {
+            return await bookContext.ReadUserBookAsync(userId, bookKey, useNavigationalProperties, isReadOnly);
+        }
+
+        public async Task UpdateUserBookRatingAsync(string userId, string bookId, int rating)
+        {          
+           await bookContext.UpdateUserBookRatingAsync(userId, bookId, rating);                      
         }
     }
 }

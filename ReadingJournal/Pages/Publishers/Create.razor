@@ -1,0 +1,58 @@
+﻿@page "/publishers/create"
+@using BusinessLayer;
+@using ServiceLayer;
+@using Microsoft.AspNetCore.Components.Forms;
+@inject PublisherManager publisherManager;
+@inject NavigationManager navigationManager;
+@inject ErrorModel errorModel;
+@attribute [Authorize(Roles = "Administrator")]
+
+<h3>Create</h3>
+
+<h4>Publisher</h4>
+
+<hr />
+
+<div class="row">
+	<div class="col-md-4">
+		<EditForm Model="@Model" OnValidSubmit="OnCreated">
+			<DataAnnotationsValidator />
+			<div class="form-group">
+				<label class="control-label">Name</label>
+				<InputText @bind-Value="@Model.Name" class="form-control" autofocus />
+				<ValidationMessage For="@(() => Model.Name)" />
+			</div>
+			<br />
+
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn btn-primary" />
+			</div>
+
+			<label id="error" class="text-danger">@errorModel.Description</label>
+		</EditForm>
+	</div>
+</div>
+
+<div>
+	<a href="publishers">Back to List</a>
+</div>
+
+@code
+{
+	Publisher Model = new();
+
+
+	async Task OnCreated()
+	{
+		try
+		{
+			await publisherManager.CreateAsync(Model);
+			navigationManager.NavigateTo("publishers");
+		}
+		catch (Exception ex)
+		{
+			errorModel.Code = "DB";
+			errorModel.Description = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+		}
+	}
+}

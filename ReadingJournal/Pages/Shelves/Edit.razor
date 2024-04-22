@@ -1,0 +1,90 @@
+﻿@page "/shelves/edit/{Id:int}"
+@using BusinessLayer;
+@using ServiceLayer;
+@inject ShelfManager shelfManager;
+@inject UserManager userManager;
+@inject NavigationManager navigationManager;
+
+<h3>Edit</h3>
+
+
+<h4>Shelf</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="Model" OnValidSubmit="OnUpdated">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label class="control-label">Id</label>
+                <label class="form-control">@Model.Id</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Title</label>
+                <input @bind-value="Model.Name" class="form-control" />
+                <ValidationMessage For="@( () => Model.Name )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Shelf purpose</label>
+                <InputSelect @bind-Value="Model.ShelfPurpose" class="form-control">
+                    @if (Model.ShelfPurpose == null)
+                    {
+                        <option selected value="">None</option>
+                    }
+                    @foreach (var sp in Enum.GetValues(typeof(ShelfPurpose)))
+                    {
+                        <option value="@sp">@sp</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@( () => Model.ShelfPurpose )" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Edition</label>
+                <InputSelect @bind-Value="Model.UserId" class="form-control">
+
+                    @foreach (var item in Users)
+                    {
+                        if (item.Id == Model.UserId)
+                        {
+                            <option selected value="@item.Id"> @item.Id </option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id"> @item.Id </option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="shelves">Back to List</a>
+</div>
+
+@code
+{
+    Shelf Model = new();
+    IEnumerable<User> Users = new List<User>();
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Users = await userManager.ReadAllUsersAsync();
+
+        Model = await shelfManager.ReadAsync(Id, true, false);
+    }
+
+    private async Task OnUpdated()
+    {
+        await shelfManager.UpdateAsync(Model, true);
+        navigationManager.NavigateTo("shelves");
+    }
+
+}

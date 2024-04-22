@@ -68,6 +68,9 @@ namespace DataLayer
            .HasForeignKey(s => s.BookId)
            .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<UserBook>().HasKey(ub => new { ub.UserId, ub.BookId });
+            modelBuilder.Entity<UserBook>().HasOne(ub => ub.Book).WithMany(b => b.UserBooks).HasForeignKey(ub => ub.BookId);
+
 
             base.OnModelCreating(modelBuilder);
 		}
@@ -85,5 +88,7 @@ namespace DataLayer
         public DbSet<Shelf> Shelves { get; set; }
 
 		public DbSet<FriendRequest> FriendRequests { get; set; }
+
+        public DbSet<UserBook> UserBooks { get; set; }
     }
 }

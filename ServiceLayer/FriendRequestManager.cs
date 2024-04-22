@@ -53,8 +53,12 @@ namespace ServiceLayer
         {
 			return await friendRequestContext.GetFriendRequestsForUserAsync(userId, useNavigationalProperties);
         }
-
-		public async Task DeleteFriendRequestAsync(string requestId)
+        public async Task<bool> HasPendingFriendRequestAsync(string senderId, string receiverId)
+        {
+            var friendRequests = await friendRequestContext.GetFriendRequestsForUserAsync(receiverId);
+            return friendRequests.Any(fr => fr.SenderId == senderId && !fr.IsAccepted);
+        }
+        public async Task DeleteFriendRequestAsync(string requestId)
 		{
 			await friendRequestContext.DeleteAsync(requestId);
 		}

@@ -8,7 +8,7 @@ namespace BusinessLayer
 {
     public class UserBook
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
 
         public string BookId { get; set; }
@@ -16,14 +16,14 @@ namespace BusinessLayer
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int Rating { get; set; }
+        public int? Rating { get; set; }
 
         public UserBook()
         {
             
         }
 
-        public UserBook(int userId, string bookId , DateTime startDate, DateTime endDate, int rating)
+        public UserBook(string userId, string bookId , DateTime startDate, DateTime endDate, int? rating = null)
         {
             UserId = userId;
             BookId = bookId;

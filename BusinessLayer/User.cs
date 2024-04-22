@@ -25,12 +25,15 @@ namespace BusinessLayer
 
 		public List<FriendRequest> FriendRequests { get; set; }
 
-		public User()
+        public List<UserBook> UserBooks { get; set; }
+
+        public User()
         {
             Friends = new();
             Shelves = new();
 			FavoriteGenres = new();
             FriendRequests = new();
+            UserBooks = new();
         }
 
         public User(string username, string firstName, string lastName, string password) : base(username)
@@ -42,6 +45,7 @@ namespace BusinessLayer
             Shelves = new();
             FavoriteGenres = new();
             FriendRequests = new();
+            UserBooks = new();
         }
 
         public User(string firstName, string lastName, string username, string email, int age, string password, Role role)
@@ -59,6 +63,7 @@ namespace BusinessLayer
 			Shelves = new();
 			FavoriteGenres = new();
             FriendRequests = new();
+            UserBooks = new();
 		}
 
         public User(string id, string firstName, string lastName, string username, string email, int age, string password, Role role)

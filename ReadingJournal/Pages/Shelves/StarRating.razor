@@ -1,0 +1,27 @@
+﻿@*@inherits Blazorise.Icon
+
+<span style="cursor: pointer;">
+    @for (int i = 1; i <= 5; i++)
+    {
+        <Icon Icon="@((i <= Rating) ? "fas fa-star" : "far fa-star")" @onclick="(() => SetRating(i))"></Icon>
+    }
+</span>
+
+
+@code {
+    [Parameter]
+    public int Rating { get; set; }
+
+    [Parameter]
+    public EventCallback<int> RatingChanged { get; set; }
+
+    private void SetRating(int rating)
+    {
+        if (Rating != rating)
+        {
+            Rating = rating;
+            RatingChanged.InvokeAsync(rating);
+        }
+    }
+}*@
+

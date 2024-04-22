@@ -1,0 +1,109 @@
+﻿@page "/search"
+@using BusinessLayer;
+@using Services;
+@using ServiceLayer;
+@using System.Security.Claims
+
+@inject BookService bookService
+@inject ShelfManager shelfManager
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "Administrator, User")]
+
+<h3>SearchBooks</h3>
+
+<form @onsubmit="Search">
+    <div class="row">
+        <div class="col-md-4 d-flex">
+    <input class="form-control" style="border:solid" type="text" @bind="searchText" />
+    <button class="btn btn-primary" style="border:solid" type="submit">Search</button>
+    </div>
+    </div>
+</form>
+<br />
+
+@if (Books != null)
+{
+    <div class="row">
+        <div class="col-md-4">
+             <div class="form-group">
+                <label for="shelfSelect">Select a shelf:</label>
+                <select id="shelfSelect" class="form-control" @onchange="SelectShelf">
+                    @foreach (var shelf in Shelves)
+                    {
+                        <option value="@shelf.Id">@shelf.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div class="book-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+        @foreach (var book in Books)
+        {
+            <div class="book-item" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; text-align: center;">
+                <img src="@book.CoverUrl" alt="Book Cover" width="150" height="200" />
+                <p>@book.Title</p>
+                <button style="padding:10px; border:none; background-color:#007BFF; color:white; cursor:pointer; width:100%;" @onclick="() => AddToShelf(book)">Add to Shelf</button>
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    private string searchText;
+    public ICollection<Book> Books { get; set; }
+    public int SelectedShelfId { get; set; }
+    public IEnumerable<Shelf> Shelves { get; set; } = new List<Shelf>();
+    public Shelf SelectedShelf { get; set; }
+    public SearchModel SearchModel { get; set; } = new SearchModel();
+
+    private async Task Search()
+    {
+        Books = await bookService.GetBooks(searchText);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        Shelves = await shelfManager.ReadAllAsync(true);
+        Shelves = Shelves.Where(shelf => shelf.UserId == userId).ToList();
+
+        if (Shelves.Any())
+        {
+            SearchModel.SelectedShelfId = Shelves.First().Id;
+        }
+    }
+
+    private async Task AddToShelf(Book book)
+    {
+        try
+        {
+            var selectedShelf = Shelves.FirstOrDefault(shelf => shelf.Id == SearchModel.SelectedShelfId);
+            if (selectedShelf != null)
+            {
+                selectedShelf.Books.Add(book);
+                await shelfManager.UpdateAsync(selectedShelf, true);
+                navigationManager.NavigateTo("shelves");
+            }
+            else
+            {
+                Console.WriteLine("No shelf selected.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding book to shelf: {ex.Message}");
+        }
+    }
+
+    private async Task SelectShelf(ChangeEventArgs e)
+    {
+        SearchModel.SelectedShelfId = int.Parse(e.Value.ToString());
+    }
+}

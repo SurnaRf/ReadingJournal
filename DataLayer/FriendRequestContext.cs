@@ -169,7 +169,7 @@ namespace DataLayer
             }
 
 
-			return query.ToList();
+			return await query.ToListAsync();
 		}
     }
 }

@@ -22,13 +22,6 @@ namespace DataLayer
 		{
 			try
 			{
-				//Edition editionFromDb = await dbContext.Editions.FindAsync(item.Edition.Id);
-
-				//if (editionFromDb != null)
-				//{
-				//	item.Edition = editionFromDb;
-				//}
-
 				List<Author> authors = new();
 
 				foreach (Author author in item.Authors)
@@ -120,19 +113,6 @@ namespace DataLayer
                 {
                     query = query.AsNoTrackingWithIdentityResolution();
                 }
-
-                //var books = await query.ToListAsync(); // Retrieve all books asynchronously
-
-                //// Example of handling null values (e.g., CoverUrl) before processing data
-                //foreach (var book in books)
-                //{
-                //    if (book.CoverUrl == null)
-                //    {
-                //        book.CoverUrl = "default_cover.jpg"; // Set default cover URL or handle null case
-                //    }
-                //}
-
-                //return books;
                 return await query.ToListAsync();
             }
 			catch (Exception)
@@ -158,18 +138,6 @@ namespace DataLayer
 
 				if (useNavigationalProperties)
 				{
-					//Edition editionFromDb = await dbContext.Editions.FindAsync(item.Edition.Id);
-
-					//if (editionFromDb != null)
-					//{
-					//	bookFromDb.Edition = editionFromDb;
-					//}
-
-					//else
-					//{
-					//	bookFromDb.Edition = item.Edition;
-					//}
-
                     List<Author> authors = new();
 
                     foreach (Author author in item.Authors)
@@ -273,5 +241,78 @@ namespace DataLayer
 				throw;
 			}
 		}
-	}
+
+        public async Task<UserBook> ReadUserBookAsync(string userId, string bookKey, bool useNavigationalProperties = false, bool isReadOnly = true)
+        {
+            try
+            {
+                IQueryable<UserBook> query = dbContext.UserBooks;
+
+                if (useNavigationalProperties)
+                {
+                    query = query.Include(ub => ub.User)
+                                 .Include(ub => ub.Book);
+                }
+
+                if (isReadOnly)
+                {
+                    query = query.AsNoTrackingWithIdentityResolution();
+                }
+
+                return await query.FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == bookKey);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task UpdateUserBookAsync(UserBook item, bool useNavigationalProperties = false)
+        {
+            try
+            {
+                UserBook userBookFromDb = await ReadUserBookAsync(item.UserId, item.BookId, useNavigationalProperties, false);
+
+                if (userBookFromDb == null)
+                {
+                    throw new Exception("UserBook not found");
+                }
+
+                userBookFromDb.Rating = item.Rating;
+                userBookFromDb.StartDate = item.StartDate;
+                userBookFromDb.EndDate = item.EndDate;
+
+                dbContext.UserBooks.Update(userBookFromDb);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task UpdateUserBookRatingAsync(string userId, string bookId, int rating)
+        {
+            try
+            {
+                var userBook = await dbContext.UserBooks
+                    .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == bookId);
+
+                if (userBook != null)
+                {
+                    userBook.Rating = rating;
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("UserBook entry not found. Unable to update rating.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating book rating.", ex);
+            }
+        }
+
+    }
 }

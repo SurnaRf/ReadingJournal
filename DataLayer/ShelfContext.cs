@@ -180,5 +180,29 @@ namespace DataLayer
                 throw;
             }
         }
+
+        public async Task RateBookAsync(string userId, string bookId, int rating)
+        {
+            try
+            {
+                var userBook = await dbContext.UserBooks
+                    .FirstOrDefaultAsync(ub => ub.UserId == userId && ub.BookId == bookId);
+
+                if (userBook != null)
+                {
+                    // Update the rating
+                    userBook.Rating = rating;
+                    await dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("UserBook entry not found. Unable to rate the book.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error rating the book.", ex);
+            }
+        }
     }
 }

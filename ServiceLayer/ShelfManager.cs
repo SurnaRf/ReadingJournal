@@ -46,5 +46,11 @@ namespace ServiceLayer
         {
             return await shelfContext.GetShelvesForUserAsync(userId, useNavigationalProperties);
         }
+
+        public async Task RateBookAsync(string userId, string bookId, int rating)
+        {
+
+            await shelfContext.RateBookAsync(userId, bookId, rating);
+        }
     }
 }
