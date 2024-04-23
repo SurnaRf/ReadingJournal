@@ -71,11 +71,11 @@ namespace DataLayer
             await userManager.SetEmailAsync(adminIdentityUser, email);
         }
 
-        public async Task CreateUserAsync(string username, string password, string email, string firstName, string lastName, int age, Role role)
+        public async Task CreateUserAsync(string username, string password, string email, string firstName, string lastName, Role role, int age)
         {
             try
             {
-                User user = new(firstName, lastName, username, email, age, password, role);
+                User user = new(firstName, lastName, username, email, password, role, age);
                 IdentityResult result = await userManager.CreateAsync(user, password);
 
                 if (!result.Succeeded)

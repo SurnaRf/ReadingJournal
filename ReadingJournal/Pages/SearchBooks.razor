@@ -59,6 +59,7 @@
     public IEnumerable<Shelf> Shelves { get; set; } = new List<Shelf>();
     public Shelf SelectedShelf { get; set; }
     public SearchModel SearchModel { get; set; } = new SearchModel();
+    public List<UserBook> UserBooks { get; set; } = new();
 
     private async Task Search()
     {
@@ -84,10 +85,21 @@
     {
         try
         {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var selectedShelf = Shelves.FirstOrDefault(shelf => shelf.Id == SearchModel.SelectedShelfId);
             if (selectedShelf != null)
             {
+                if (!UserBooks.Any(ub => ub.BookId == book.Key))
+                {
+                    UserBook userBook = new UserBook(userId, book.Key);
+                    userBook.Book = book;
+                    UserBooks.Add(userBook);
+                }
+                book.UserBooks = UserBooks;
                 selectedShelf.Books.Add(book);
+                
                 await shelfManager.UpdateAsync(selectedShelf, true);
                 navigationManager.NavigateTo("shelves");
             }

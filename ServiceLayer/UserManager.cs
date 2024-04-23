@@ -31,9 +31,9 @@ namespace ServiceLayer
 
         #region CRUD
 
-        public async Task CreateUserAsync(string username, string password, string email, string firstName, string lastName, int age, Role role)
+        public async Task CreateUserAsync(string username, string password, string email, string firstName, string lastName, Role role, int age)
         {
-            await context.CreateUserAsync(username, password, email, firstName, lastName, age,  role);
+            await context.CreateUserAsync(username, password, email, firstName, lastName,  role, age);
         }
 
         public async Task<ClaimsPrincipal> LogInUserAsync(string username, string password)

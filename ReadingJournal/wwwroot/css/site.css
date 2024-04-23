@@ -54,6 +54,17 @@ a, .btn-link {
     background-color: #a50101 !important; 
     border-color: #8f1a1a;
 }
+.star-rating {
+    font-size: 24px;
+}
+
+.star {
+    cursor: pointer;
+}
+
+.selected {
+    color: gold;
+}
 
 .content {
     padding-top: 1.1rem;

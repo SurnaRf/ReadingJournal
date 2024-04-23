@@ -1,27 +1,22 @@
-﻿@*@inherits Blazorise.Icon
+﻿@typeparam TValue
 
-<span style="cursor: pointer;">
+<div class="star-rating">
     @for (int i = 1; i <= 5; i++)
     {
-        <Icon Icon="@((i <= Rating) ? "fas fa-star" : "far fa-star")" @onclick="(() => SetRating(i))"></Icon>
+        var starNumber = i;
+        <span class="star @(starNumber <= Convert.ToInt32(Value) ? "selected" : "")" @onclick="() => UpdateRating(starNumber)">★</span>
     }
-</span>
-
+</div>
 
 @code {
     [Parameter]
-    public int Rating { get; set; }
+    public TValue Value { get; set; }
 
     [Parameter]
-    public EventCallback<int> RatingChanged { get; set; }
+    public EventCallback<TValue> ValueChanged { get; set; }
 
-    private void SetRating(int rating)
+    private async Task UpdateRating(int selectedRating)
     {
-        if (Rating != rating)
-        {
-            Rating = rating;
-            RatingChanged.InvokeAsync(rating);
-        }
+        await ValueChanged.InvokeAsync((TValue)Convert.ChangeType(selectedRating, typeof(TValue)));
     }
-}*@
-
+}

@@ -69,7 +69,7 @@
         try
         {
             await userManager.CreateUserAsync
-            (model.UserName, model.Password, model.Email, model.FirstName, model.LastName, (int)model.Age, Role.User);
+            (model.UserName, model.Password, model.Email, model.FirstName, model.LastName, Role.User, (int)model.Age);
 
             logger.Log(LogLevel.Information, "User created successfully!");
 

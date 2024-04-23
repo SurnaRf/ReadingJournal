@@ -3,6 +3,7 @@
 @using ServiceLayer;
 @inject ShelfManager shelfManager;
 @inject UserManager userManager;
+@inject BookManager bookManager;
 @inject NavigationManager navigationManager;
 
 <h3>Edit</h3>
@@ -37,22 +38,25 @@
                 </InputSelect>
                 <ValidationMessage For="@( () => Model.ShelfPurpose )" />
             </div>
-            <div class="form-group">
-                <label class="control-label">Edition</label>
-                <InputSelect @bind-Value="Model.UserId" class="form-control">
 
-                    @foreach (var item in Users)
-                    {
-                        if (item.Id == Model.UserId)
+            <div class="form-group">
+                <div class="col-md-5 col-sm-12">
+                    <MudSelect T="Book" Label="Select Books" Variant="Variant.Outlined" Multiple="true" @bind-Value="SelectedBook">
+                        @foreach (var book in Books)
                         {
-                            <option selected value="@item.Id"> @item.Id </option>
+                            <MudSelectItem Value="@book">@book.Title</MudSelectItem>
                         }
-                        else
-                        {
-                            <option value="@item.Id"> @item.Id </option>
-                        }
-                    }
-                </InputSelect>
+                    </MudSelect>
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    <MudButton class="btn btn-primary" OnClick="@(() => AddBook())">Add</MudButton>
+                </div>
+                @foreach (var item in SelectedBooks)
+                {
+                    <a>@item.Title</a>
+                    <a @onclick="@(() => SelectedBooks.Remove(item))"> ✖</a>
+                    <a>| </a>
+                }
             </div>
 
             <div class="form-group">
@@ -70,21 +74,41 @@
 {
     Shelf Model = new();
     IEnumerable<User> Users = new List<User>();
+    ICollection<Book> Books = new List<Book>();
+    Book SelectedBook = null;
+    List<Book> SelectedBooks = new();
+
 
     [Parameter]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Users = await userManager.ReadAllUsersAsync();
-
+        Users = await userManager.ReadAllUsersAsync();      
         Model = await shelfManager.ReadAsync(Id, true, false);
+        Books = Model.Books;
     }
 
     private async Task OnUpdated()
     {
+        foreach (var selectedBook in SelectedBooks)
+        {
+            if (Model.Books.Contains(selectedBook))
+            {
+                Model.Books.Remove(selectedBook);
+            }
+        }
         await shelfManager.UpdateAsync(Model, true);
         navigationManager.NavigateTo("shelves");
+    }
+
+    private void AddBook()
+    {
+        if (SelectedBook != null)
+        {
+            SelectedBooks.Add(SelectedBook);
+            SelectedBook = null;
+        }
     }
 
 }

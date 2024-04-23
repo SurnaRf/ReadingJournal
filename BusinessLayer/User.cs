@@ -48,7 +48,7 @@ namespace BusinessLayer
             UserBooks = new();
         }
 
-        public User(string firstName, string lastName, string username, string email, int age, string password, Role role)
+        public User(string firstName, string lastName, string username, string email, string password, Role role, int age = 0)
 		{
             FirstName = firstName;
             LastName = lastName;
@@ -66,8 +66,8 @@ namespace BusinessLayer
             UserBooks = new();
 		}
 
-        public User(string id, string firstName, string lastName, string username, string email, int age, string password, Role role)
-            : this(firstName, lastName, username, email, age, password, role)
+        public User(string id, string firstName, string lastName, string username, string email,string password, Role role, int age = 0)
+            : this(firstName, lastName, username, email, password, role, age)
         {
             Id = id;
         }
