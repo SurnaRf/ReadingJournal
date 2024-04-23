@@ -1,0 +1,73 @@
+﻿@page "/shelves/changebookdates/{Key}"
+@using BusinessLayer
+@using ServiceLayer
+@inject UserManager userManager
+@inject BookManager bookManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+
+<h3>Book Details</h3>
+@if (Model != null)
+{
+    <div>
+        <h4>@Model.Title</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Start Date
+            </dt>
+            <dd class="col-sm-10">
+                <input type="date" @bind="UserBook.StartDate" />
+            </dd>
+            <dt class="col-sm-2">
+                End Date
+            </dt>
+            <dd class="col-sm-10">
+                <input type="date" @bind="UserBook.EndDate" />
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <button class="btn" @onclick="UpdateBookDates">Save</button>
+    </div>
+    <div>
+        <a href="shelves">Back to List</a>
+    </div>
+}
+else
+{
+    <p>Loading book details...</p>
+}
+@code {
+    Book Model = new();
+    UserBook UserBook = new UserBook();
+    [Parameter]
+    public string Key { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var name = user.Identity.Name;
+        var authUser = await userManager.FindUserByNameAsync(name);
+
+        Model = await bookManager.ReadAsync(Key);
+        if (Model != null)
+        {
+            UserBook = await bookManager.ReadUserBookAsync(authUser.Id, Key);
+            if (UserBook == null)
+            {
+                UserBook = new UserBook { UserId = authUser.Id, BookId = Key };
+            }
+        }
+    }
+    private async Task UpdateBookDates()
+    {
+        if (UserBook != null)
+        {
+            await bookManager.UpdateUserBookAsync(UserBook);
+            await JSRuntime.InvokeVoidAsync("alert", "Dates successfully updated!");
+            navigationManager.NavigateTo("shelves", true);
+        }
+    }
+}

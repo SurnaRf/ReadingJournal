@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace DataLayer
 {
-    //To do: Write logic for UserContext.
     public class UserContext
     {
         UserManager<User> userManager;

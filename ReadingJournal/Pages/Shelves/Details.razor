@@ -46,7 +46,7 @@
                 {
                     var userBook = UserBooks.FirstOrDefault(ub => ub.BookId == book.Key);
                     <div>
-                        <span>@book.Title</span>
+                        <a href="shelves/changebookdates/@book.Key">@book.Title</a>
                         <br/>
                         @if (userBook != null && Model.ShelfPurpose == ShelfPurpose.Read)
                         {
