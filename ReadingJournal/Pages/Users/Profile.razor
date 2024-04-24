@@ -11,7 +11,6 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager navigationManager
 
-
 <h3>Profile</h3>
 <EditForm Model="@Model" OnValidSubmit="@UpdateProfile">
 	<DataAnnotationsValidator />
@@ -48,13 +47,13 @@
 @code {
 	private User Model = new();
 
+	string errMess = string.Empty;
+
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 		var user = authState.User;
-
 		var name = user.Identity.Name;
-
 
 		Model= await identityManager.FindUserByNameAsync(name);
 	}
@@ -72,7 +71,6 @@
 					UserId = Model.Id
 				});
 			navigationManager.NavigateTo("/", true);
-			//await RefreshSignIn();
 			
 		}
 		catch (Exception ex)
@@ -82,19 +80,4 @@
 		}
 		navigationManager.NavigateTo("/"); 
 	}
-
-	private async Task RefreshSignIn()
-	{
-		// Refresh the sign-in for the updated user
-		await signInManager.RefreshSignInAsync(Model);
-	}
-
-	string errMess = string.Empty;
-	string passwordChange = string.Empty;
-
-
-	User currUser;
-	[CascadingParameter]
-	private Task<AuthenticationState> authenticationStateTask { get; set; }
-	string currentUserId = string.Empty;	
 }

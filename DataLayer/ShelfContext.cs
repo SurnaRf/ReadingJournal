@@ -190,7 +190,6 @@ namespace DataLayer
 
                 if (userBook != null)
                 {
-                    // Update the rating
                     userBook.Rating = rating;
                     await dbContext.SaveChangesAsync();
                 }

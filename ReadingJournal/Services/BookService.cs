@@ -87,15 +87,5 @@ namespace ReadingJournal.Services
 
             return "https://via.placeholder.com/150"; 
         }
-
-        public async Task<ICollection<Book>> SearchBooks(string searchText)
-        {
-            throw new NotImplementedException();
-        }
-        private int? ParsePublishYear(List<int>? publishYearList)
-        {
-            return publishYearList?.FirstOrDefault();
-        }
-
     }
 }

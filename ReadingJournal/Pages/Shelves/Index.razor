@@ -1,11 +1,10 @@
 ﻿@page "/shelves"
 @using ServiceLayer;
 @using BusinessLayer;
+@using System.Security.Claims;
 @inject ShelfManager shelfManager
 @inject NavigationManager navigationManager;
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@using System.Security.Claims
-
 
 <h3>Index</h3>
 
@@ -56,10 +55,8 @@
                 </tr>
             }
         }
-
     </tbody>
 </table>
-
 
 @code
 {

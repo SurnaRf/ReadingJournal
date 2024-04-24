@@ -31,6 +31,7 @@
     <div>
         <button class="btn" @onclick="UpdateBookDates">Save</button>
     </div>
+    <br />
     <div>
         <a href="shelves">Back to List</a>
     </div>
@@ -44,6 +45,7 @@ else
     UserBook UserBook = new UserBook();
     [Parameter]
     public string Key { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -61,6 +63,7 @@ else
             }
         }
     }
+
     private async Task UpdateBookDates()
     {
         if (UserBook != null)

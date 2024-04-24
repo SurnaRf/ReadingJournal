@@ -46,7 +46,6 @@ else
         friendRequests = await friendRequestManager.GetFriendRequestsForUserAsync(authUserId, true);
     }
 
-
     private async Task AcceptFriendRequest(string requestId)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();

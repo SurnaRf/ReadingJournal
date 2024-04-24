@@ -8,9 +8,7 @@
 @inject NavigationManager navigationManager;
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-
 <h3>Create</h3>
-
 
 <h4>Shelf</h4>
 <hr />
@@ -44,7 +42,7 @@
         </EditForm>
     </div>
 </div>
-
+<br />
 <div>
     <a href="shelves">Back to List</a>
 </div>
@@ -64,22 +62,20 @@
 
         var name = user.Identity.Name;
 
-
         Model.User = await userManager.FindUserByNameAsync(name);
         Model.UserId = Model.User.Id;
 
         await base.OnInitializedAsync();
-
     }
 
     private async Task OnCreated()
     {
-
         if (Model.ShelfPurpose == null)
         {
             shelfPurposeError = "You must choose a shelf purpose";
             return;
         }
+
         else
         {
             userError = string.Empty;

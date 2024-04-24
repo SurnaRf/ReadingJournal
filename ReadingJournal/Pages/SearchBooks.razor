@@ -3,9 +3,9 @@
 @using Services;
 @using ServiceLayer;
 @using System.Security.Claims
-
 @inject BookService bookService
 @inject ShelfManager shelfManager
+@inject UserManager userManager
 @inject NavigationManager navigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize(Roles = "Administrator, User")]
@@ -88,6 +88,9 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var name = user.Identity.Name;
+            User User = await userManager.FindUserByNameAsync(name);
+
             var selectedShelf = Shelves.FirstOrDefault(shelf => shelf.Id == SearchModel.SelectedShelfId);
             if (selectedShelf != null)
             {
@@ -95,6 +98,7 @@
                 {
                     UserBook userBook = new UserBook(userId, book.Key);
                     userBook.Book = book;
+                    userBook.User = User;
                     UserBooks.Add(userBook);
                 }
                 book.UserBooks = UserBooks;

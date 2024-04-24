@@ -8,15 +8,11 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
-// https://github.com/JamesNK/Newtonsoft.Json/issues/1713 (!)
-
 namespace ReadingJournal.Services
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private ClaimsIdentity userClaimsIdentity;
         private readonly ProtectedSessionStorage sessionStorage;
-        private JsonSerializerSettings jsonSerializerSettings;
         
         private ClaimsPrincipal anonymous = new ClaimsPrincipal(new ClaimsIdentity());
         public CustomAuthenticationStateProvider(ProtectedSessionStorage storage)
