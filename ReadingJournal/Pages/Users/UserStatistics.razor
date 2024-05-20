@@ -1,8 +1,71 @@
 ﻿@page "/user/statistics"
-<h3>UserStatistics</h3>
+@using BusinessLayer
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore
+@using ServiceLayer;
+@using Blazorise.Charts;
+@inject UserManager<User> userManager
+@inject UserStatisticsCalculator statisticsCalculator
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Work in progress!</h3>
+<h3>User Statistics</h3>
+
+@if (User == null || Statistics == null)
+{
+    <p>Loading user statistics...</p>
+}
+<div>
+    @if (Statistics != null)
+    {
+        <h4>Total Books Read: @Statistics.TotalBooksRead</h4>
+        <h4>Average Rating: @Statistics.AverageRating</h4>
+    }    
+
+    <h4>Books Read Per Month</h4>
+    <BarChart @ref="barChart" TItem="decimal" />
+</div>
 
 @code {
+    User User { get; set; }
+    BusinessLayer.UserStatistics Statistics { get; set; }
+    BarChart<decimal> barChart;
+    List<string> labels;
+    List<decimal> data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var name = user.Identity.Name;
+        User = await userManager.Users
+            .Include(u => u.UserBooks)
+            .Include(u => u.Shelves)
+                .ThenInclude(s => s.Books)
+            .FirstOrDefaultAsync(u => u.UserName == name);       
+       
+        if (User != null)
+        {
+            Statistics = await statisticsCalculator.CalculateStatisticsAsync(User);
+            labels = Statistics.BooksReadPerMonth.Keys.ToList();
+            data = Statistics.BooksReadPerMonth.Values.Select(i => (decimal)i).ToList();
+            if (labels != null && data != null)
+            {
+                await barChart.AddLabelsDatasetsAndUpdate(labels, GetBarChartDataset());
+            }
+        }
+    }
+
+    BarChartDataset<decimal> GetBarChartDataset()
+    {
+        return new()
+            {
+                Label = "Books Read",
+                BackgroundColor = "#ba4184",
+                BorderColor = "#8c2e62",
+                BorderWidth = 1,
+                Data = data ?? new List<decimal>()
+            };
+    }
 
 }

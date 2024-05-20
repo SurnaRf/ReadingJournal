@@ -9,6 +9,9 @@ using ReadingJournal.Pages;
 using ReadingJournal.Services;
 using ServiceLayer;
 using MudBlazor.Services;
+using Blazorise;
+using Blazorise.Charts;
+using Blazorise.Icons.FontAwesome;
 
 namespace ReadingJournal;
 
@@ -45,6 +48,7 @@ public class Program
 
         builder.Services.AddScoped<ErrorModel, ErrorModel>();
         builder.Services.AddScoped<BookService, BookService>();
+        builder.Services.AddScoped<UserStatisticsCalculator, UserStatisticsCalculator>();
 
         builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
         builder.Services.AddScoped<ProtectedSessionStorage, ProtectedSessionStorage>();
@@ -66,6 +70,11 @@ public class Program
             {
                 BaseAddress = new Uri(builder.Configuration["BookAPI"])
             });
+
+        builder.Services
+    .AddBlazorise()
+    .AddEmptyProviders()
+    .AddFontAwesomeIcons();
 
         builder.Services.ConfigureApplicationCookie(options =>
         {

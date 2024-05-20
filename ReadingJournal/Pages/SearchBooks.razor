@@ -45,7 +45,7 @@
             <div class="book-item" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; text-align: center;">
                 <img src="@book.CoverUrl" alt="Book Cover" width="150" height="200" />
                 <p>@book.Title</p>
-                <button style="padding:10px; border:none; background-color:#007BFF; color:white; cursor:pointer; width:100%;" @onclick="() => AddToShelf(book)">Add to Shelf</button>
+                <button class="btn btn-primary" @onclick="() => AddToShelf(book)">Add to Shelf</button>
             </div>
         }
     </div>

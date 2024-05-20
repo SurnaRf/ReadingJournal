@@ -11,5 +11,10 @@ namespace BusinessLayer
         public int TotalBooksRead { get; set; }
         public double AverageRating { get; set; }
         public Dictionary<string, int> BooksReadPerMonth { get; set; }
+
+        public UserStatistics()
+        {
+            
+        }
     }
 }
