@@ -1,11 +1,15 @@
-﻿@page "/shelves/changebookdates/{Key}"
+﻿@page "/shelves/changebookdates/{ShelfId:int}/{BookKey}"
 @using BusinessLayer
 @using ServiceLayer
+@using ReadingJournal.Services
+@using System.Security.Claims;
 @inject UserManager userManager
 @inject BookManager bookManager
+@inject ShelfManager shelfManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navigationManager
+@inject NotificationService NotificationService
 
 <h3>Book Details</h3>
 @if (Model != null)
@@ -29,7 +33,7 @@
         </dl>
     </div>
     <div>
-        <button class="btn" @onclick="UpdateBookDates">Save</button>
+        <button class="btn btn-primary" @onclick="UpdateBookDates">Save</button>
     </div>
     <br />
     <div>
@@ -40,11 +44,17 @@ else
 {
     <p>Loading book details...</p>
 }
+
 @code {
     Book Model = new();
-    UserBook UserBook = new UserBook();
+    UserBook UserBook = new();
+    Shelf Shelf = new();
     [Parameter]
-    public string Key { get; set; }
+    public int ShelfId { get; set; }
+    [Parameter]
+    public string BookKey { get; set; }
+    private bool WasStartDateSetInitially;
+    private bool WasEndDateSetInitially;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,14 +63,18 @@ else
         var name = user.Identity.Name;
         var authUser = await userManager.FindUserByNameAsync(name);
 
-        Model = await bookManager.ReadAsync(Key);
+        Shelf = await shelfManager.ReadAsync(ShelfId, true, true);
+        Model = await bookManager.ReadAsync(BookKey);
         if (Model != null)
         {
-            UserBook = await bookManager.ReadUserBookAsync(authUser.Id, Key);
+            UserBook = await bookManager.ReadUserBookAsync(authUser.Id, BookKey, true);
             if (UserBook == null)
             {
-                UserBook = new UserBook { UserId = authUser.Id, BookId = Key };
+                UserBook = new UserBook { UserId = authUser.Id, BookId = BookKey };
             }
+
+            WasStartDateSetInitially = UserBook.StartDate.HasValue;
+            WasEndDateSetInitially = UserBook.EndDate.HasValue;
         }
     }
 
@@ -68,9 +82,46 @@ else
     {
         if (UserBook != null)
         {
+            bool isStartDateChanged = !WasStartDateSetInitially && UserBook.StartDate.HasValue;
+            bool isEndDateChanged = !WasEndDateSetInitially && UserBook.EndDate.HasValue;
+
             await bookManager.UpdateUserBookAsync(UserBook);
             await JSRuntime.InvokeVoidAsync("alert", "Dates successfully updated!");
+
+            if (isStartDateChanged && Shelf.ShelfPurpose == ShelfPurpose.CurrentlyReading)
+            {
+                await NotifyFriendsAsync(UserBook, "started");
+            }
+            if (isEndDateChanged && Shelf.ShelfPurpose == ShelfPurpose.CurrentlyReading)
+            {
+                await NotifyFriendsAsync(UserBook, "finished");
+            }
+
             navigationManager.NavigateTo("shelves", true);
         }
     }
+
+    private async Task NotifyFriendsAsync(UserBook userBook, string action)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        User User = await userManager.ReadUserAsync(userId, true);
+
+        var friends = User.Friends;
+        var friendUserNames = friends.Select(f => f.UserName).ToList();
+        var message = "";
+
+        if (action == "started")
+        {
+            message = $"{User.FirstName} {User.LastName} has started reading '{Model.Title}' on {userBook.StartDate?.ToShortDateString()}.";
+        }
+        else if (action == "finished")
+        {
+            message = $"{User.FirstName} {User.LastName} has finished reading '{Model.Title}' on {userBook.EndDate?.ToShortDateString()}.";
+        }
+
+        await NotificationService.SendNotificationAsync(friendUserNames, User.UserName, message);
+    }
+
 }

@@ -27,12 +27,10 @@
                 {
                     @Model.User.UserName
                 }
-
                 else
                 {
                     <span>User not available</span>
                 }
-
             </dd>
             <dt class="col-sm-2">
                 Shelf purpose
@@ -48,15 +46,15 @@
                 {
                     var userBook = UserBooks.FirstOrDefault(ub => ub.BookId == book.Key);
                     <div>
-                        <a href="shelves/changebookdates/@book.Key">@book.Title</a>
-                        <br/>
+                        <a href="shelves/changebookdates/@Model.Id/@book.Key">@book.Title</a>
+                        <br />
                         @if (userBook != null && Model.ShelfPurpose == ShelfPurpose.Read)
                         {
                             <StarRating TValue="int" Value="userBook.Rating ?? 0" ValueChanged="newValue => UpdateBookRating(userBook, newValue)" />
                         }
                         else if (userBook == null)
                         {
-                             <span>User book information not available</span>
+                            <span>User book information not available</span>
                         }
                     </div>
                 }

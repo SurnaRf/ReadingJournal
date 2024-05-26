@@ -12,6 +12,7 @@ using MudBlazor.Services;
 using Blazorise;
 using Blazorise.Charts;
 using Blazorise.Icons.FontAwesome;
+using ReadingJournal.Hubs;
 
 namespace ReadingJournal;
 
@@ -24,6 +25,8 @@ public class Program
 
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
+        builder.Services.AddSignalR();
+
 
         builder.Services.AddSingleton<SeederManager>();
         builder.Services.AddSingleton<SeederService>();
@@ -52,6 +55,8 @@ public class Program
 
         builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
         builder.Services.AddScoped<ProtectedSessionStorage, ProtectedSessionStorage>();
+
+        builder.Services.AddSingleton<NotificationService>();
 
         builder.Services.AddMudServices();
 
@@ -126,6 +131,7 @@ public class Program
         app.UseRouting();
 
         app.MapBlazorHub();
+        app.MapHub<NotificationHub>("/notificationHub");
         app.MapFallbackToPage("/_Host");
 
         app.Run();

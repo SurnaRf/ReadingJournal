@@ -43,7 +43,7 @@ namespace ServiceLayer
             }
 
             userStatistics.TotalBooksRead = userBooksInReadShelves.Count;
-            userStatistics.AverageRating = userBooksInReadShelves.Average(ub => ub.Rating ?? 0);
+            userStatistics.AverageRating = double.Parse(userBooksInReadShelves.Average(ub => ub.Rating ?? 0).ToString("0.##")) ;
 
             userStatistics.BooksReadPerMonth = userBooksInReadShelves
                 .Where(ub => ub.StartDate.HasValue)

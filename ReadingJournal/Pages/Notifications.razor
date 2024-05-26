@@ -1,0 +1,48 @@
+﻿@page "/notifications"
+@using ReadingJournal.Services
+@using Microsoft.AspNetCore.SignalR.Client
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+
+<h3>Notifications</h3>
+
+@if (notifications.Any())
+{
+    <ul>
+        @foreach (var notification in notifications)
+        {
+            <li>@($"{notification.Sender}: {notification.Message}")</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No notifications yet.</p>
+}
+
+@code {
+    private List<Notification> notifications = new List<Notification>();
+    private string currentUser;
+
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        currentUser = authState.User.Identity.Name;            
+
+        await NotificationService.StartConnectionAsync();
+
+        
+        notifications.AddRange(NotificationService.GetNotifications(currentUser));
+
+        NotificationService.OnNotificationReceived += (user, sender, message) =>
+        {
+
+            if (user == currentUser)
+            {
+                 notifications.AddRange(NotificationService.GetNotifications(user));
+            }
+        };
+    }
+}
