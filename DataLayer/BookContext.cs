@@ -332,7 +332,6 @@ namespace DataLayer
             catch (Exception ex)
             {
 
-                throw new Exception("Error sharing book.", ex);
             }           
         }
 

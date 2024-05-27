@@ -6,7 +6,7 @@ namespace ReadingJournal.Hubs
     {        
         public async Task SendNotification(List<string> users, string sender, string message)
         {
-            await Clients.All.SendAsync("ReceiveNotification", users, sender, message);                     
+            await Clients.All.SendAsync("ReceiveNotification", users, sender, message);        
         }   
 
     }

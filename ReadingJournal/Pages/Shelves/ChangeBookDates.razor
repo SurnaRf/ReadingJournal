@@ -74,8 +74,10 @@ else
     public int ShelfId { get; set; }
     [Parameter]
     public string BookKey { get; set; }
-    private bool WasStartDateSetInitially;
-    private bool WasEndDateSetInitially;
+    //private bool WasStartDateSetInitially;
+    //private bool WasEndDateSetInitially;
+    DateTime? initialStartDate;
+    DateTime? initialEndDate;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,8 +99,11 @@ else
             User = await userManager.ReadUserAsync(authUser.Id, true);
             Friends = User.Friends;
 
-            WasStartDateSetInitially = UserBook.StartDate.HasValue;
-            WasEndDateSetInitially = UserBook.EndDate.HasValue;
+            initialStartDate = UserBook.StartDate;
+            initialEndDate = UserBook.EndDate;
+
+            //WasStartDateSetInitially = UserBook.StartDate.HasValue;
+            //WasEndDateSetInitially = UserBook.EndDate.HasValue;
         }
     }
 
@@ -106,8 +111,8 @@ else
     {
         if (UserBook != null)
         {
-            bool isStartDateChanged = !WasStartDateSetInitially && UserBook.StartDate.HasValue;
-            bool isEndDateChanged = !WasEndDateSetInitially && UserBook.EndDate.HasValue;
+            bool isStartDateChanged = initialStartDate != UserBook.StartDate;
+            bool isEndDateChanged = initialEndDate != UserBook.EndDate;
 
             await bookManager.UpdateUserBookAsync(UserBook);
             await JSRuntime.InvokeVoidAsync("alert", "Dates successfully updated!");
@@ -159,8 +164,7 @@ else
     private async Task ShareBookWithAllFriends()
     {
         var friendIds = Friends.Select(f => f.Id).ToList();
-        var friendUserNames = Friends.Select(f => f.UserName).ToList();
-        await bookManager.ShareBookAsync(User.Id, BookKey, friendIds);
+        var friendUserNames = Friends.Select(f => f.UserName).ToList();      
         await NotificationService.SendNotificationAsync(friendUserNames, User.UserName, $"The book '{Model.Title}' has been shared with you!");
     }
 

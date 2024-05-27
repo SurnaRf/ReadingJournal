@@ -28,6 +28,7 @@ public class NotificationService
     private ILogger<NotificationService> _logger;
     public Dictionary<string, List<Notification>> Notifications;
     private bool _isHandlerAttached = false;
+    public bool IsConnected() => _hubConnection != null && _hubConnection.State == HubConnectionState.Connected;
 
     public event Action<string, string, string> OnNotificationReceived;
 
@@ -43,6 +44,7 @@ public class NotificationService
         {
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl("https://localhost:7257/notificationHub")
+                .WithAutomaticReconnect()
                 .Build();
         }
 
@@ -50,7 +52,7 @@ public class NotificationService
         {
             try
             {
-                await _hubConnection.StartAsync();
+                await _hubConnection.StartAsync();               
             }
             catch (Exception ex)
             {
