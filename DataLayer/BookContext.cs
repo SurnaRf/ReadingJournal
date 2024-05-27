@@ -314,5 +314,27 @@ namespace DataLayer
             }
         }
 
+        public async Task ShareBookAsync(string userId, string bookId, List<string> friendIds)
+        {
+            try
+            {
+                foreach (var friendId in friendIds)
+                {
+                    var userBook = new UserBook
+                    {
+                        UserId = friendId,
+                        BookId = bookId,
+                    };
+                    await dbContext.UserBooks.AddAsync(userBook);
+                }
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error sharing book.", ex);
+            }           
+        }
+
     }
 }

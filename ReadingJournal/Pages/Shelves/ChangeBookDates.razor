@@ -32,6 +32,24 @@
             </dd>
         </dl>
     </div>
+    <div class="form-group">
+        <label class="control-label">Share book with friends</label>
+        <div class="col-md-5 col-sm-12">           
+            <MudSelect T="User" Label="Select Friends" Variant="Variant.Outlined" Multiple="true" SelectedValuesChanged="(e) => OnSelectedFriendsChanged(e)">
+                @foreach (var friend in Friends)
+                {
+                    <MudSelectItem Value="@friend">@friend.UserName</MudSelectItem>
+                }
+            </MudSelect>
+            <div class="col-md-5 col-sm-12">
+                <MudButton class="btn btn-primary" OnClick="@ShareBookWithSelectedFriends">Share with selected friends</MudButton>
+            </div>
+            <div class="col-md-5 col-sm-12">
+                <MudButton class="btn btn-primary" OnClick="@(() => ShareBookWithAllFriends())">Share with all friends</MudButton>
+            </div>
+        </div>
+    </div> 
+
     <div>
         <button class="btn btn-primary" @onclick="UpdateBookDates">Save</button>
     </div>
@@ -48,7 +66,10 @@ else
 @code {
     Book Model = new();
     UserBook UserBook = new();
+    User User = new();
     Shelf Shelf = new();
+    List<User> Friends = new();
+    List<User> SelectedFriends = new();
     [Parameter]
     public int ShelfId { get; set; }
     [Parameter]
@@ -63,8 +84,8 @@ else
         var name = user.Identity.Name;
         var authUser = await userManager.FindUserByNameAsync(name);
 
-        Shelf = await shelfManager.ReadAsync(ShelfId, true, true);
-        Model = await bookManager.ReadAsync(BookKey);
+        Shelf = await shelfManager.ReadAsync(ShelfId, true, false);
+        Model = await bookManager.ReadAsync(BookKey, true);
         if (Model != null)
         {
             UserBook = await bookManager.ReadUserBookAsync(authUser.Id, BookKey, true);
@@ -72,6 +93,9 @@ else
             {
                 UserBook = new UserBook { UserId = authUser.Id, BookId = BookKey };
             }
+
+            User = await userManager.ReadUserAsync(authUser.Id, true);
+            Friends = User.Friends;
 
             WasStartDateSetInitially = UserBook.StartDate.HasValue;
             WasEndDateSetInitially = UserBook.EndDate.HasValue;
@@ -124,4 +148,34 @@ else
         await NotificationService.SendNotificationAsync(friendUserNames, User.UserName, message);
     }
 
+    private async Task ShareBookWithSelectedFriends()
+    {
+        var friendIds = SelectedFriends.Select(f => f.Id).ToList();
+        await bookManager.ShareBookAsync(User.Id, BookKey, friendIds);
+        var friendUserNames = SelectedFriends.Select(f => f.UserName).ToList();
+        await NotificationService.SendNotificationAsync(friendUserNames, User.UserName, $"The book '{Model.Title}' has been shared with you!");
+    }
+
+    private async Task ShareBookWithAllFriends()
+    {
+        var friendIds = Friends.Select(f => f.Id).ToList();
+        var friendUserNames = Friends.Select(f => f.UserName).ToList();
+        await bookManager.ShareBookAsync(User.Id, BookKey, friendIds);
+        await NotificationService.SendNotificationAsync(friendUserNames, User.UserName, $"The book '{Model.Title}' has been shared with you!");
+    }
+
+    private void OnSelectedFriendsChanged(IEnumerable<User> selectedFriends)
+    {
+        foreach (var selectedFriend in selectedFriends)
+        {
+            if (SelectedFriends.Contains(selectedFriend))
+            {
+                SelectedFriends.Remove(selectedFriend);
+            }
+            else
+            {
+                SelectedFriends.Add(selectedFriend);
+            }
+        }
+    }
 }

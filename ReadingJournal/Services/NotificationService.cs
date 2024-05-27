@@ -29,7 +29,6 @@ public class NotificationService
     public Dictionary<string, List<Notification>> Notifications;
     private bool _isHandlerAttached = false;
 
-
     public event Action<string, string, string> OnNotificationReceived;
 
     public NotificationService(ILogger<NotificationService> logger)
@@ -84,10 +83,18 @@ public class NotificationService
 
     public List<Notification> GetNotifications(string user)
     {
-        List<Notification> result = Notifications[user];
-        Notifications[user] = new();
-        return result;
+        if (Notifications.ContainsKey(user))
+        {
+            List<Notification> result = Notifications[user];
+            Notifications[user] = new List<Notification>();
+            return result;
+        }
+        else
+        {
+            return new List<Notification>();
+        }
     }
+
     public async Task SendNotificationAsync(List<string> users, string sender, string message)
     {
         await StartConnectionAsync();

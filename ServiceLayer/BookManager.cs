@@ -57,5 +57,10 @@ namespace ServiceLayer
         {          
            await bookContext.UpdateUserBookRatingAsync(userId, bookId, rating);                      
         }
+
+        public async Task ShareBookAsync(string userId, string bookId, List<string> friendIds)
+        {
+            await bookContext.ShareBookAsync(userId, bookId, friendIds);
+        }
     }
 }
